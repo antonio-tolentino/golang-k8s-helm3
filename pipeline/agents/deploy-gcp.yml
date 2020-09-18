@@ -8,9 +8,7 @@ spec:
   serviceAccount: jenkins
   containers:
   - name: kubectl
-    # image = deploy-gcp:v1.0.0 (kubectl + helm 2)
     # image = deploy-gcp:v1.1.0 (kubectl + helm 3)
-    #image: gcr.io/arquitetura-207620/deploy-gcp:v1.0.0
     image: gcr.io/arquitetura-207620/deploy-gcp:v1.1.0
     #imagePullPolicy: Always
     command: 
