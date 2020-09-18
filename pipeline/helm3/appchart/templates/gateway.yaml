@@ -1,0 +1,48 @@
+{{- if .Values.istio.enabled }}
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: {{ include "appchart.fullname" . }}
+  labels:
+    {{- include "appchart.labels" . | nindent 4 }}
+spec:
+  selector:
+    istio: ingressgateway # use Istio default gateway implementation  
+  servers:  
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP2
+    hosts:
+    {{- range .Values.istio.hosts }}
+    - {{ .host | quote }}
+    {{- end }}
+    {{- if .Values.istio.redirect }}
+    tls:
+      httpsRedirect: {{ .Values.istio.redirect }} # sends 301 redirect for http requests
+    {{- end }}
+  {{- if and (.Values.istio.tls.enabled) (.Values.istio.tls.localCert) }}
+  - port:
+      number: 443
+      name: https
+      protocol: HTTPS
+    hosts:
+    {{- range .Values.istio.hosts }}
+    - {{ .host | quote }}
+    {{- end }}
+    tls:
+      mode: SIMPLE
+      credentialName: {{ .Values.istio.tls.credentialName }}
+  {{- else }} 
+  - port:
+      number: 443
+      name: https
+      protocol: HTTP2
+    hosts:
+    {{- range .Values.istio.hosts }}
+    - {{ .host | quote }}
+    {{- end }}
+    tls:
+      mode: PASSTHROUGH
+  {{- end }}
+{{- end }}

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    sidecar: golang
+  namespace: jenkins
+spec:
+  containers:
+  - name: golang
+    image: golang:1.12
+    #imagePullPolicy: Always
+    command: 
+    - cat
+    tty: true
