@@ -1,7 +1,7 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "application.name" -}}
+{{- define "appchart.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
@@ -10,7 +10,7 @@ Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
 */}}
-{{- define "application.fullname" -}}
+{{- define "appchart.fullname" -}}
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
@@ -26,16 +26,16 @@ If release name contains chart name it will be used as a full name.
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "application.chart" -}}
+{{- define "appchart.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Common labels
 */}}
-{{- define "application.labels" -}}
-helm.sh/chart: {{ include "application.chart" . }}
-{{ include "application.selectorLabels" . }}
+{{- define "appchart.labels" -}}
+helm.sh/chart: {{ include "appchart.chart" . }}
+{{ include "appchart.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 #app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 app.kubernetes.io/version: {{ .Values.image.tag | quote }}
@@ -48,17 +48,17 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels
 */}}
-{{- define "application.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "application.name" . }}
+{{- define "appchart.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "appchart.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
 Create the name of the service account to use
 */}}
-{{- define "application.serviceAccountName" -}}
+{{- define "appchart.serviceAccountName" -}}
 {{- if .Values.serviceAccount.create }}
-{{- default (include "application.fullname" .) .Values.serviceAccount.name }}
+{{- default (include "appchart.fullname" .) .Values.serviceAccount.name }}
 {{- else }}
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
@@ -67,6 +67,6 @@ Create the name of the service account to use
 {{/*
 Create Cluster FQDN Service name
 */}}
-{{- define "application.serviceClusterFQDN" -}}
-{{- printf "%s.%s.svc.cluster.local" (include "application.fullname" .) .Release.Namespace }}
+{{- define "appchart.serviceClusterFQDN" -}}
+{{- printf "%s.%s.svc.cluster.local" (include "appchart.fullname" .) .Release.Namespace }}
 {{- end }}

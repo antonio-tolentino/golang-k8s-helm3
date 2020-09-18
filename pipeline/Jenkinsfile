@@ -311,18 +311,12 @@ pipeline {
                                --namespace=${NAMESPACE} \
                                --set image.repository=${REPOSITORY} \
                                --set image.tag=${IMAGE_TAG} \
-                               -f pipeline/helm/v3/application/values-${ENV_NAME}.yaml \
-                               pipeline/helm/v3/application """
-                    
-                        // helm 2
-                        //echo "INFO: Deploy helm templates"
-                        //sh """ helm upgrade --install \
-                        //       --namespace=${NAMESPACE} \
-                        //       --set image.repository=${REPOSITORY} \
-                        //       --set image.tag=${IMAGE_TAG} \
-                        //       -f pipeline/helm/v2/application/values-${ENV_NAME}.yaml \
-                        //       ${HELM_NAME} \
-                        //       pipeline/helm/v2/application """                               
+                               --set nameOverride=${APP_NAME} \
+                               -f pipeline/helm3/appchart/values-${ENV_NAME}.yaml \
+                               pipeline/helm3/appchart """
+
+                        echo "INFO: List Helm details"
+                        sh "helm list ${HELM_NAME} -n ${NAMESPACE}" 
 
                     }
                 }

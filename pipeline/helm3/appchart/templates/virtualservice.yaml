@@ -2,16 +2,16 @@
 apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
 metadata:
-  name: {{ include "application.fullname" . }}
+  name: {{ include "appchart.fullname" . }}
   labels:
-    {{- include "application.labels" . | nindent 4 }} 
+    {{- include "appchart.labels" . | nindent 4 }} 
 spec:
   hosts:
   {{- range .Values.istio.hosts }}
   - {{ .host | quote }}
   {{- end }}
   gateways:
-  - {{ include "application.fullname" . }}
+  - {{ include "appchart.fullname" . }}
   http:
   - match:
     {{- range .Values.istio.paths }}
@@ -20,7 +20,7 @@ spec:
     {{- end }} 
     route:
     - destination:
-        host: {{ include "application.serviceClusterFQDN" . }}
+        host: {{ include "appchart.serviceClusterFQDN" . }}
         port:
           number: {{ .Values.service.port }} 
 {{- end }}

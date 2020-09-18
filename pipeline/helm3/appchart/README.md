@@ -8,7 +8,7 @@ Verify "chart.yaml" and replace tags bellow if necessary:
 * appVersion
 
 ## Values default ##
-Verify "values.yaml", replace or ajust every resource necessary to your application.
+Verify "values.yaml", replace or ajust every resource necessary to your appchart.
 
 ## Kubernetes Livenessprobe e Readinessprobe ##
 Verify "deployment.yaml" tags "path" and "port" and other tags if necessary.

@@ -2,9 +2,9 @@
 apiVersion: networking.istio.io/v1beta1
 kind: Gateway
 metadata:
-  name: {{ include "application.fullname" . }}
+  name: {{ include "appchart.fullname" . }}
   labels:
-    {{- include "application.labels" . | nindent 4 }}
+    {{- include "appchart.labels" . | nindent 4 }}
 spec:
   selector:
     istio: ingressgateway # use Istio default gateway implementation  

@@ -1,4 +1,4 @@
-# Default values for application.
+# Default values for appchart.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
@@ -48,20 +48,20 @@ ingress:
     # cert-manager.io/issuer: "nameOfIssuer"
     # cert-manager.io/cluster-issuer: "nameOfClusterIssuer"
   hosts: 
-    - host: books.mydomain.com.br
+    - host: books-dev.mydomain.com.br
       paths: 
         - /     
   tls: []
   #  - secretName: mydomain-tls
   #    hosts:
-  #      - books.mydomain.com.br
+  #      - books-dev.mydomain.com.br
 
 ## istion service mesh
 istio:
   enabled: false
   redirect: true
   hosts: 
-    - host: books.mydomain.com.br
+    - host: books-dev.mydomain.com.br
   paths: 
     - /api/v1
     - /swagger
