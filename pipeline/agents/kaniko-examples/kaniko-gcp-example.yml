@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    sidecar: kaniko
+  namespace: jenkins
+spec:
+  containers:
+  - name: kaniko
+    image: gcr.io/kaniko-project/executor:debug
+    env:
+      - name: GOOGLE_APPLICATION_CREDENTIALS
+        value: /secret/jenkins-gcp-credentials.json   
+    #imagePullPolicy: Always
+    command: 
+    - /busybox/cat
+    tty: true
+    #resources:
+    #  requests:
+    #    cpu: 50m
+    #    memory: 100Mi
+    #  limits:
+    #    cpu: 500m
+    #    memory: 800Mi  
+    volumeMounts:
+    - mountPath: /workspace/cache
+      name: jenkins-kaniko-image-cache      
+    - name: kaniko-gcp-secret
+      mountPath: /secret      
+  volumes:
+    - name: jenkins-kaniko-image-cache
+      persistentVolumeClaim:
+        claimName: jenkins-kaniko-image-cache    
+    - name: kaniko-gcp-secret
+      secret:
+        secretName: kaniko-gcp-credentials-secret        

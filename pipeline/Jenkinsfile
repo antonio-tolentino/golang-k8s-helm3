@@ -1,0 +1,405 @@
+pipeline {
+    //Global agent  
+    agent none
+
+    environment {
+        // Application name
+        APP_NAME = "books"
+        COMPANY_NAME = "Acme Industries LTDA."
+
+        //Image registry to push image
+        REGISTRY = "gcr.io/arquitetura-207620"
+
+        // Namespaces 
+        DEVELOP_NAMESPACE = "develop"
+        RELEASE_NAMESPACE = "homolog"
+        PROD_NAMESPACE = "prod"
+
+        // Environment name
+        DEVELOP_ENV = "dev"
+        RELEASE_ENV = "hml"
+        PROD_ENV = "prd"
+
+
+    }
+
+    //keep last 5 builds
+    options{
+         buildDiscarder(logRotator(numToKeepStr: '5', artifactNumToKeepStr: '5'))
+    }
+     
+
+    stages {  
+
+        stage('Code: Checkout'){
+            agent { node { label 'linux' } }
+            steps{
+                script{
+                    echo "INFO: Checkout code from branch [ ${BRANCH_NAME} ]"
+                    checkout scm
+                }
+            }
+            
+        }
+
+        stage('Code: Compile and Test'){
+            agent {
+                kubernetes {
+                    cloud 'local'
+                    label "golang-agent-${BUILD_NUMBER}"
+                    yamlFile 'pipeline/agents/golang.yml'
+                }
+            } 
+            steps{
+                container('golang') { 
+                    script {
+                        echo "INFO: Generating code coverage reports"
+                        sh 'go get -u github.com/gorilla/mux'
+                        sh 'go test ./rest-api -coverprofile=coverage.out'
+                        sh 'go get -u github.com/jstemmer/go-junit-report'
+                        sh 'go test ./rest-api -v -bench -count 5 2>&1 | go-junit-report > junit-report.xml'
+                        echo "INFO: Compiling code"
+                        sh 'CGO_ENABLED=0 GOOS=linux go build -o books ./...'
+                    }                    
+                }
+            }
+            post{
+                success{
+                    junit '**/*-report.xml'
+                    stash name: 'golang-artifacts', includes: "**/coverage.out, **/junit-report.xml, **/books"
+                }
+            }            
+        }
+
+
+        stage('Code: SonarQube analysis') {
+            agent {
+                kubernetes {
+                    cloud 'local'
+                    label "sonar-scanner-cli-agent-${BUILD_NUMBER}"
+                    yamlFile 'pipeline/agents/sonar-scanner-cli.yml'
+                }
+            }  
+            steps{
+                container('sonar-scanner-cli') {
+                    script{
+                        unstash 'golang-artifacts'
+
+                        withSonarQubeEnv('SonarQube') { 
+                            sh '/opt/sonar-scanner/bin/sonar-scanner -Dproject.settings=./pipeline/sonar-project.properties'
+                        }
+
+                        timeout(time: 5, unit: 'MINUTES') {
+                            waitForQualityGate abortPipeline: true
+                        }
+                    }
+
+                }
+            }
+        }
+
+        stage('Image: Build and Push'){
+            when {
+                beforeAgent true
+                anyOf {
+                    branch "develop"
+                    branch "release/*"  
+                    branch "master"
+                }
+            }
+            agent {
+                kubernetes {
+                    cloud 'local'
+                    label "kaniko-agent-${BUILD_NUMBER}"
+                    yamlFile 'pipeline/agents/kaniko-gcp.yml'
+                }
+            } 
+            environment{
+                // Image tag
+                IMAGE_TAG = GIT_COMMIT.take(7)
+            }
+            steps {
+                container('kaniko') {
+                    script{
+                        
+  
+                        if (BRANCH_NAME == 'develop'){
+
+                            // image repository and tag
+                            REPOSITORY = "${REGISTRY}/${APP_NAME}-${DEVELOP_ENV}:${IMAGE_TAG}"
+
+                        } else if (BRANCH_NAME.contains("release/")){
+
+                            // Split branch name and get semantic version
+                            def delimiterPos = "${BRANCH_NAME}".indexOf('/')
+                            def releaseVersion = "${BRANCH_NAME}".substring( delimiterPos + 1 ).replace('.','-') 
+                            // image repository and tag
+                            REPOSITORY = "${REGISTRY}/${APP_NAME}-${RELEASE_ENV}-${releaseVersion}:${IMAGE_TAG}"
+
+                        } else if (BRANCH_NAME == 'master'){
+
+                            // image repository and tag
+                            REPOSITORY = "${REGISTRY}/${APP_NAME}-${PROD_ENV}:${IMAGE_TAG}"
+
+                        }
+
+                        echo "INFO: Building and pushing container image"
+                
+                        // golang artifacts
+                        unstash 'golang-artifacts'
+
+                         sh """
+                        /kaniko/executor \
+                        --dockerfile=pipeline/Dockerfile \
+                        --context=`pwd` \
+                        --cache=true \
+                        --cache-dir=/workspace/cache \
+                        --destination=${REPOSITORY} \
+                        --verbosity=debug 
+                        """
+                    }
+                }
+            }
+        }        
+
+        // Approve notification only for Release and Prod
+        stage("Approval notification"){
+            agent { node { label 'linux' } }
+            when {
+                beforeAgent true
+                anyOf {
+                    branch "release/*"  
+                    branch "master"
+                }
+            }
+            steps{
+                script{
+                    // body replace
+                    echo "INFO: Replacing approval email template tokens"
+                    sh "sed -i 's/{APP_NAME}/${APP_NAME}/g' pipeline/email/approval_body_html.tpl"
+                    sh "sed -i 's/{JOB_NAME}/${JOB_NAME.replace('/','\\/').replace('%2F','\\/')}/g' pipeline/email/approval_body_html.tpl"
+                    sh "sed -i 's/{BRANCH_NAME}/${BRANCH_NAME.replace('/','\\/')}/g' pipeline/email/approval_body_html.tpl"
+                    sh "sed -i 's/{BUILD_URL}/${BUILD_URL.replace('/','\\/')}/g' pipeline/email/approval_body_html.tpl"
+                    sh "sed -i 's/{RUN_DISPLAY_URL}/${RUN_DISPLAY_URL.replace('/','\\/')}/g' pipeline/email/approval_body_html.tpl"
+                    sh "sed -i 's/{COMPANY_NAME}/${COMPANY_NAME}/g' pipeline/email/approval_body_html.tpl"
+                    sh "sed -i 's/{JENKINS_URL}/${JENKINS_URL.replace('/','\\/')}/g' pipeline/email/approval_body_html.tpl"
+                    
+                    // send mail notification
+                    MAIL_BODY = '${FILE, path="pipeline/email/approval_body_html.tpl"}' 
+                    echo "INFO: Sending email notification"
+                    emailext body: MAIL_BODY, 
+                    subject: "Jenkins notificaton [ Job: ${JOB_NAME.replace('%2F','/')} ] [ Build: ${BUILD_NUMBER} ] is waiting for approval.",
+                    to: '$DEFAULT_RECIPIENTS'
+                }
+            }            
+        } // end stage approve notification
+
+        // Approve step only for Release and Prod
+        stage('Approve deploy?') {
+            agent none
+            when {
+                beforeAgent true
+                anyOf {
+                    branch "release/*"  
+                    branch "master"
+                }
+            }            
+            steps {
+                script {
+                    timeout(time: 4, unit: 'HOURS') {
+                        def answer = input( id: 'deployInput', 
+                                            message: 'Deseja aprovar?', 
+                                            ok: 'Yes',
+                                            submitter: "approver",
+                                            submitterParameter: 'SUBMITTER',
+                                            parameters: [ booleanParam( defaultValue: true, 
+                                                                        description: 'Para aprovar click Yes.', 
+                                                                        name: 'autorizado') ])                                            
+
+                        // not confirmed action is aborted.
+                        if (!answer['autorizado']){
+                            currentBuild.result = 'ABORTED'
+                            error("Ação não confirmada! Por favor, Selecione o checkbox para autorizar o deploy.")
+                        }   
+                    }
+                }
+             }
+        } // end stage approve 
+
+        stage('Kubernetes: Deploy'){
+            when {
+                beforeAgent true
+                anyOf {
+                    branch "develop"
+                    branch "release/*"  
+                    branch "master"
+                }
+            }
+            //agent {
+            //    kubernetes {
+            //        cloud 'local'
+            //        label "deploy-gcp-agent-${BUILD_NUMBER}"
+            //        yamlFile 'pipeline/agents/deploy-gcp.yml'
+            //    }
+            //}  
+            // IF IMAGE REPOSITORY HAS TO BE FLEXIBLE
+            agent {
+                //image = deploy-gcp:v1.0.0 (kubectl + helm 2)
+                //image = deploy-gcp:v1.1.0 (kubectl + helm 3)
+                kubernetes {
+                    cloud 'local'
+                    yaml """
+                         apiVersion: v1
+                         kind: Pod
+                         metadata:
+                           labels:
+                             sidecar: deploy-gcp
+                           namespace: jenkins
+                         spec:
+                           serviceAccount: jenkins
+                           containers:
+                           - name: deploy-gcp
+                             image: ${REGISTRY}/deploy-gcp:v1.1.0
+                             #imagePullPolicy: Always
+                             command:
+                             - cat
+                             tty: true
+                         """
+                }
+            }              
+            environment{
+                // Image tag
+                IMAGE_TAG = GIT_COMMIT.take(7)
+            }                      
+            steps{
+                container('deploy-gcp'){
+                    script{
+
+                        if (BRANCH_NAME == 'develop'){
+
+                            ENV_NAME = DEVELOP_ENV
+                            HELM_NAME = "${APP_NAME}-${DEVELOP_ENV}"
+                            NAMESPACE = DEVELOP_NAMESPACE
+                            // image repository
+                            REPOSITORY = "${REGISTRY}/${APP_NAME}-${DEVELOP_ENV}"
+
+                        } else if (BRANCH_NAME.contains("release/")){
+                            // Split branch name and get semantic version
+                            def delimiterPos = "${BRANCH_NAME}".indexOf('/')
+                            def releaseVersion = "${BRANCH_NAME}".substring( delimiterPos + 1 ).replace('.','-') 
+
+                            ENV_NAME = RELEASE_ENV
+                            HELM_NAME = "${APP_NAME}-${RELEASE_ENV}-${releaseVersion}"
+                            NAMESPACE = RELEASE_NAMESPACE
+                            // image repository
+                            REPOSITORY = "${REGISTRY}/${APP_NAME}-${RELEASE_ENV}-${releaseVersion}"
+
+                        } else if (BRANCH_NAME == 'master'){
+
+                            ENV_NAME = PROD_ENV
+                            HELM_NAME = "${APP_NAME}-${PROD_ENV}"
+                            // image repository 
+                            REPOSITORY = "${REGISTRY}/${APP_NAME}-${PROD_ENV}"
+                            NAMESPACE = PROD_NAMESPACE
+                        }
+                      
+                        // helm 3 
+                        echo "INFO: Deploy helm templates"
+                        sh """ helm upgrade --install \
+                               ${HELM_NAME} \
+                               --create-namespace=true \
+                               --namespace=${NAMESPACE} \
+                               --set image.repository=${REPOSITORY} \
+                               --set image.tag=${IMAGE_TAG} \
+                               -f pipeline/helm/v3/application/values-${ENV_NAME}.yaml \
+                               pipeline/helm/v3/application """
+                    
+                        // helm 2
+                        //echo "INFO: Deploy helm templates"
+                        //sh """ helm upgrade --install \
+                        //       --namespace=${NAMESPACE} \
+                        //       --set image.repository=${REPOSITORY} \
+                        //       --set image.tag=${IMAGE_TAG} \
+                        //       -f pipeline/helm/v2/application/values-${ENV_NAME}.yaml \
+                        //       ${HELM_NAME} \
+                        //       pipeline/helm/v2/application """                               
+
+                    }
+                }
+            }
+        }// end stage deploy
+
+    } //end stages
+    
+    post {
+        always {
+            node('linux') {
+                script{
+                    echo 'Commands always executed.'
+                }
+            }
+        }
+        success {
+            node('linux') {
+                script{
+                    echo 'INFO: Pipeline finished successifully!'
+
+                    // body replace
+                    echo 'INFO: Replacing successful email template tokens'
+                    sh "sed -i 's/{APP_NAME}/${APP_NAME}/g' pipeline/email/successful_deploy_body_html.tpl"
+                    sh "sed -i 's/{JOB_NAME}/${JOB_NAME.replace('/','\\/').replace('%2F','\\/')}/g' pipeline/email/successful_deploy_body_html.tpl"
+                    sh "sed -i 's/{BRANCH_NAME}/${BRANCH_NAME.replace('/','\\/')}/g' pipeline/email/successful_deploy_body_html.tpl"
+                    sh "sed -i 's/{BUILD_URL}/${BUILD_URL.replace('/','\\/')}/g' pipeline/email/successful_deploy_body_html.tpl"
+                    sh "sed -i 's/{RUN_DISPLAY_URL}/${RUN_DISPLAY_URL.replace('/','\\/')}/g' pipeline/email/successful_deploy_body_html.tpl"
+                    sh "sed -i 's/{DURATION_STRING}/${currentBuild.durationString.replace(' and counting', '')}/g' pipeline/email/successful_deploy_body_html.tpl"
+                    sh "sed -i 's/{COMPANY_NAME}/${COMPANY_NAME}/g' pipeline/email/successful_deploy_body_html.tpl"
+                    sh "sed -i 's/{JENKINS_URL}/${JENKINS_URL.replace('/','\\/')}/g' pipeline/email/successful_deploy_body_html.tpl"
+
+                    // send mail notification
+                    MAIL_BODY = '${FILE, path="pipeline/email/successful_deploy_body_html.tpl"}' 
+                    
+                    echo 'INFO: Sending email notification'
+                    emailext body: MAIL_BODY, 
+                    subject: "Jenkins notificaton [ Job: ${JOB_NAME.replace('%2F','/')} ] [ Status: ${currentBuild.currentResult} ].",
+                    to: '$DEFAULT_RECIPIENTS'
+                    
+                }
+            }            
+        }
+        failure {
+            node('linux') {
+                script{
+                    echo 'INFO: Pipeline finished with failure!'
+                    // body replace
+                    echo 'INFO: Replacing fail email template tokens'
+                    sh "sed -i 's/{APP_NAME}/${APP_NAME}/g' pipeline/email/failed_deploy_body_html.tpl"
+                    sh "sed -i 's/{JOB_NAME}/${JOB_NAME.replace('/','\\/').replace('%2F','\\/')}/g' pipeline/email/failed_deploy_body_html.tpl"
+                    sh "sed -i 's/{BRANCH_NAME}/${BRANCH_NAME.replace('/','\\/')}/g' pipeline/email/failed_deploy_body_html.tpl"
+                    sh "sed -i 's/{BUILD_URL}/${BUILD_URL.replace('/','\\/')}/g' pipeline/email/failed_deploy_body_html.tpl"
+                    sh "sed -i 's/{RUN_DISPLAY_URL}/${RUN_DISPLAY_URL.replace('/','\\/')}/g' pipeline/email/failed_deploy_body_html.tpl"
+                    sh "sed -i 's/{JENKINS_URL}/${JENKINS_URL.replace('/','\\/')}/g' pipeline/email/failed_deploy_body_html.tpl"
+                    sh "sed -i 's/{COMPANY_NAME}/${COMPANY_NAME}/g' pipeline/email/failed_deploy_body_html.tpl"
+
+                    // send mail notification
+                    MAIL_BODY = '${FILE, path="pipeline/email/failed_deploy_body_html.tpl"}' 
+
+                    echo 'INFO: Sending email notification'
+                    emailext body: MAIL_BODY, 
+                    subject: "Jenkins notificaton [ Job: ${JOB_NAME.replace('%2F','/')} ] [ Status: ${currentBuild.currentResult} ].",
+                    to: emailextrecipients([culprits()])
+
+                }
+            }            
+        }
+        cleanup{
+            node('linux') {
+                script{
+                    echo 'Cleaning up workspace...'
+                    deleteDir()   
+                }
+            }
+        }
+      
+    } // end post
+
+} // end pipeline  
