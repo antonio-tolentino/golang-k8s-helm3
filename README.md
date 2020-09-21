@@ -1,3 +1,5 @@
 # README
 
-Test pipelin Kubernetes without docker daemon.
+Example of Jenkins pipeline for kubernetes with helm 3.
+
+
