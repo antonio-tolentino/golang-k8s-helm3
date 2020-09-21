@@ -86,7 +86,7 @@ pipeline {
                         unstash 'golang-artifacts'
 
                         withSonarQubeEnv('SonarQube') { 
-                            sh "/opt/sonar-scanner/bin/sonar-scanner -Dsonar.branch.name=${BRANCH_NAME} -Dproject.settings=./pipeline/sonar-project.properties"
+                            sh "/opt/sonar-scanner/bin/sonar-scanner -Dproject.settings=./pipeline/sonar-project.properties"
                         }
 
                         timeout(time: 5, unit: 'MINUTES') {
