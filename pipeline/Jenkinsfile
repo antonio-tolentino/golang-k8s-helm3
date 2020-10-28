@@ -268,9 +268,9 @@ pipeline {
                              command:
                              - cat
                              tty: true
-                            volumeMounts:
-                            - name: kaniko-gcp-secret
-                              mountPath: /secret                               
+                             volumeMounts:
+                               - name: kaniko-gcp-secret
+                                 mountPath: /secret                               
                            volumes:
                              - name: kaniko-gcp-secret
                                secret:
