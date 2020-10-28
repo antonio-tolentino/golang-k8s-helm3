@@ -238,8 +238,8 @@ pipeline {
             //agent {
             //    kubernetes {
             //        cloud 'local'
-            //        label "deploy-gcp-agent-${BUILD_NUMBER}"
-            //        yamlFile 'pipeline/agents/deploy-gcp.yml'
+            //        label "gcpdeploy-agent-${BUILD_NUMBER}"
+            //        yamlFile 'pipeline/agents/gcpdeploy.yml'
             //    }
             //}  
             // IF IMAGE REPOSITORY HAS TO BE FLEXIBLE
@@ -251,12 +251,12 @@ pipeline {
                          kind: Pod
                          metadata:
                            labels:
-                             sidecar: deploy-gcp
+                             sidecar: gcpdeploy
                            namespace: jenkins
                          spec:
                            serviceAccount: jenkins
                            containers:
-                           - name: deploy-gcp
+                           - name: gcpdeploy
                              image: ${REGISTRY}/gcpdeploy:v0.3.0
                              #imagePullPolicy: Always
                              command:
@@ -270,7 +270,7 @@ pipeline {
                 IMAGE_TAG = GIT_COMMIT.take(7)
             }                      
             steps{
-                container('deploy-gcp'){
+                container('gcpdeploy'){
                     script{
 
                         if (BRANCH_NAME == 'develop'){
