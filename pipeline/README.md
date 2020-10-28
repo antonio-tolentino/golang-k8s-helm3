@@ -15,9 +15,9 @@ At the beginning of Jenkinsfile there are variables you must adjust as necessary
 
 ## Helm default values ##
 There is a file with default values for every environment, and they must be adjusted as necessary:
-* DEV environment = helm2/appchart/values-dev.yaml
-* HML environment = helm2/appchart/values-hml.yaml
-* PRD environment = helm2/appchart/values-prd.yaml
+* DEV environment = helm3/appchart/values-dev.yaml
+* HML environment = helm3/appchart/values-hml.yaml
+* PRD environment = helm3/appchart/values-prd.yaml
 
 
 ## Agents ##

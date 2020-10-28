@@ -257,7 +257,7 @@ pipeline {
                            serviceAccount: jenkins
                            containers:
                            - name: deploy-gcp
-                             image: ${REGISTRY}/deploy-gcp:v1.1.0
+                             image: ${REGISTRY}/gcpdeploy:v0.3.0
                              #imagePullPolicy: Always
                              command:
                              - cat
