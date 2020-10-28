@@ -315,9 +315,10 @@ pipeline {
                         }
 
                         // inject secrets
-                        sh """  gcpsecrets -project ${PROJECT} \
-                                -gcp-secret-name app-secret \
-                                -kube-secret-file pipeline/helm3/appchart/templates/secrets.yaml
+                        sh """  gcpsecrets --project=${PROJECT} \
+                                --gcp-secret-name=app-secret \
+                                --create-new-secret-file=no \
+                                --kube-secret-file=pipeline/helm3/appchart/templates/secrets.yaml
                            """ 
 
                         // helm 3 
