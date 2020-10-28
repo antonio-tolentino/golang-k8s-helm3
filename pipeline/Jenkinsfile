@@ -7,8 +7,11 @@ pipeline {
         APP_NAME = "books"
         COMPANY_NAME = "Acme Industries LTDA."
 
-        //Image registry to push image
-        REGISTRY = "gcr.io/arquitetura-207620"
+        // GCP
+        PROJECT = "arquitetura-207620"
+        
+        //Image registry
+        REGISTRY = "gcr.io/${PROJECT}"
 
         // Namespaces 
         DEVELOP_NAMESPACE = "develop"
@@ -300,7 +303,13 @@ pipeline {
                             REPOSITORY = "${REGISTRY}/${APP_NAME}-${PROD_ENV}"
                             NAMESPACE = PROD_NAMESPACE
                         }
-                      
+
+                        // inject secrets
+                        sh """  gcpsecrets gcpsecrets -project ${PROJECT} \
+                                -gcp-secret-name app-secret \
+                                -kube-secret-file pipeline/helm3/appchart/templates/secrets.yaml
+                           """ 
+                           
                         // helm 3 
                         echo "INFO: Deploy helm templates"
                         sh """ helm upgrade --install \
