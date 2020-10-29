@@ -5,7 +5,7 @@ pipeline {
     environment {
         // Application name
         APP_NAME = "books"
-        COMPANY_NAME = "Acme Industries LTDA."
+        COMPANY_NAME = "Acme Corporation"
 
         // GCP
         PROJECT = "arquitetura-207620"

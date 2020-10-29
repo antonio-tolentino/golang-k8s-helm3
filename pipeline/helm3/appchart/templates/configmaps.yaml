@@ -5,8 +5,3 @@ metadata:
   labels:
     {{- include "appchart.labels" . | nindent 4 }}
 data:
-{{- /*
-  # Example:
-  myconfig: {{ .Values.myconfig | b64enc }}
-  myconfig: VGhpcyBpcyBteSBjb25maWcgIQ== 
-*/ -}}
