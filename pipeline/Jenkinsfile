@@ -49,8 +49,7 @@ pipeline {
             agent {
                 kubernetes {
                     cloud 'local'
-                    //label "golang-agent-${BUILD_NUMBER}"
-                    name "golang-agent-${BUILD_NUMBER}"
+                    label "golang-agent-${BUILD_NUMBER}"
                     yamlFile 'pipeline/agents/golang.yml'
                 }
             } 
