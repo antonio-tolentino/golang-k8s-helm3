@@ -316,6 +316,7 @@ pipeline {
                                 --create-new-secret-file=no \
                                 --kube-secret-file=pipeline/helm3/appchart/templates/secrets.yaml
                            """ 
+                        sh "cat pipeline/helm3/appchart/templates/secrets.yaml"
 
                         // helm 3 
                         echo "INFO: Deploy helm templates"
