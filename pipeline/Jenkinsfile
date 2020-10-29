@@ -189,7 +189,7 @@ pipeline {
                     echo "INFO: Sending email notification"
                     emailext body: MAIL_BODY, 
                     subject: "Jenkins notificaton [ Job: ${JOB_NAME.replace('%2F','/')} ] [ Build: ${BUILD_NUMBER} ] is waiting for approval.",
-                    to: '$DEFAULT_RECIPIENTS'
+                    to: "${DEFAULT_RECIPIENTS}"
                 }
             }            
         } // end stage approve notification
@@ -369,7 +369,7 @@ pipeline {
                     echo 'INFO: Sending email notification'
                     emailext body: MAIL_BODY, 
                     subject: "Jenkins notificaton [ Job: ${JOB_NAME.replace('%2F','/')} ] [ Status: ${currentBuild.currentResult} ].",
-                    to: '$DEFAULT_RECIPIENTS'
+                    to: "${DEFAULT_RECIPIENTS}"
                     
                 }
             }            
