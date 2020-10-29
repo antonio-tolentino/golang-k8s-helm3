@@ -316,11 +316,10 @@ pipeline {
                                 --create-new-secret-file=no \
                                 --kube-secret-file=pipeline/helm3/appchart/templates/secrets.yaml
                            """ 
-                        sh "cat pipeline/helm3/appchart/templates/secrets.yaml"
 
                         // helm 3 
                         echo "INFO: Deploy helm templates"
-                        sh """ helm upgrade --install --dry-run --debug \
+                        sh """ helm upgrade --install --debug \
                                ${HELM_NAME} \
                                --create-namespace=true \
                                --namespace=${NAMESPACE} \
