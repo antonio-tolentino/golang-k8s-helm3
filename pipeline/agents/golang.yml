@@ -1,8 +1,9 @@
 apiVersion: v1
 kind: Pod
 metadata:
+  name: golang-agent
   labels:
-    sidecar: golang
+    app: golang
   namespace: jenkins
 spec:
   containers:
