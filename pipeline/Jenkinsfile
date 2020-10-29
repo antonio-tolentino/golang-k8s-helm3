@@ -49,7 +49,7 @@ pipeline {
             agent {
                 kubernetes {
                     cloud 'local'
-                    //label "golang-agent-${BUILD_NUMBER}"
+                    label "golang-agent-${BUILD_NUMBER}"
                     yamlFile 'pipeline/agents/golang.yml'
                 }
             } 
@@ -79,7 +79,7 @@ pipeline {
             agent {
                 kubernetes {
                     cloud 'local'
-                    //label "sonar-scanner-cli-agent-${BUILD_NUMBER}"
+                    label "sonar-scanner-cli-agent-${BUILD_NUMBER}"
                     yamlFile 'pipeline/agents/sonar-scanner-cli.yml'
                 }
             }  
@@ -113,7 +113,7 @@ pipeline {
             agent {
                 kubernetes {
                     cloud 'local'
-                    //label "kaniko-gcp-agent-${BUILD_NUMBER}"
+                    label "kaniko-gcp-agent-${BUILD_NUMBER}"
                     yamlFile 'pipeline/agents/kaniko-gcp.yml'
                 }
             } 
@@ -249,7 +249,7 @@ pipeline {
             agent {
                 kubernetes {
                     cloud 'local'
-                    //label "gcpdeploy-agent-${BUILD_NUMBER}"
+                    label "gcpdeploy-agent-${BUILD_NUMBER}"
                     yaml """
                          apiVersion: v1
                          kind: Pod
