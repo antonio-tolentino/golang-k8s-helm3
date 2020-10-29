@@ -5,10 +5,13 @@ pipeline {
     environment {
         // Application name
         APP_NAME = "books"
-        COMPANY_NAME = "Acme Industries LTDA."
+        COMPANY_NAME = "Acme Corporation"
 
-        //Image registry to push image
-        REGISTRY = "gcr.io/arquitetura-207620"
+        // GCP
+        PROJECT = "arquitetura-207620"
+        
+        //Image registry
+        REGISTRY = "gcr.io/${PROJECT}"
 
         // Namespaces 
         DEVELOP_NAMESPACE = "develop"
@@ -46,7 +49,6 @@ pipeline {
             agent {
                 kubernetes {
                     cloud 'local'
-                    label "golang-agent-${BUILD_NUMBER}"
                     yamlFile 'pipeline/agents/golang.yml'
                 }
             } 
@@ -76,7 +78,6 @@ pipeline {
             agent {
                 kubernetes {
                     cloud 'local'
-                    label "sonar-scanner-cli-agent-${BUILD_NUMBER}"
                     yamlFile 'pipeline/agents/sonar-scanner-cli.yml'
                 }
             }  
@@ -86,7 +87,7 @@ pipeline {
                         unstash 'golang-artifacts'
 
                         withSonarQubeEnv('SonarQube') { 
-                            sh '/opt/sonar-scanner/bin/sonar-scanner -Dproject.settings=./pipeline/sonar-project.properties'
+                            sh "/opt/sonar-scanner/bin/sonar-scanner -Dproject.settings=./pipeline/sonar-project.properties"
                         }
 
                         timeout(time: 5, unit: 'MINUTES') {
@@ -110,7 +111,6 @@ pipeline {
             agent {
                 kubernetes {
                     cloud 'local'
-                    label "kaniko-agent-${BUILD_NUMBER}"
                     yamlFile 'pipeline/agents/kaniko-gcp.yml'
                 }
             } 
@@ -238,8 +238,7 @@ pipeline {
             //agent {
             //    kubernetes {
             //        cloud 'local'
-            //        label "deploy-gcp-agent-${BUILD_NUMBER}"
-            //        yamlFile 'pipeline/agents/deploy-gcp.yml'
+            //        yamlFile 'pipeline/agents/gcpdeploy.yml'
             //    }
             //}  
             // IF IMAGE REPOSITORY HAS TO BE FLEXIBLE
@@ -251,17 +250,27 @@ pipeline {
                          kind: Pod
                          metadata:
                            labels:
-                             sidecar: deploy-gcp
+                             sidecar: gcpdeploy
                            namespace: jenkins
                          spec:
                            serviceAccount: jenkins
                            containers:
-                           - name: deploy-gcp
-                             image: ${REGISTRY}/deploy-gcp:v1.1.0
+                           - name: gcpdeploy
+                             image: ${REGISTRY}/gcpdeploy:v0.3.0
+                             env:
+                               - name: GOOGLE_APPLICATION_CREDENTIALS
+                                 value: /secret/jenkins-gcp-credentials.json  
                              #imagePullPolicy: Always
                              command:
                              - cat
                              tty: true
+                             volumeMounts:
+                               - name: kaniko-gcp-secret
+                                 mountPath: /secret                               
+                           volumes:
+                             - name: kaniko-gcp-secret
+                               secret:
+                                 secretName: kaniko-gcp-credentials-secret                                 
                          """
                 }
             }              
@@ -270,7 +279,7 @@ pipeline {
                 IMAGE_TAG = GIT_COMMIT.take(7)
             }                      
             steps{
-                container('deploy-gcp'){
+                container('gcpdeploy'){
                     script{
 
                         if (BRANCH_NAME == 'develop'){
@@ -300,10 +309,17 @@ pipeline {
                             REPOSITORY = "${REGISTRY}/${APP_NAME}-${PROD_ENV}"
                             NAMESPACE = PROD_NAMESPACE
                         }
-                      
+
+                        // inject secrets
+                        sh """  gcpsecrets --project=${PROJECT} \
+                                --gcp-secret-name=app-secret \
+                                --create-new-secret-file=no \
+                                --kube-secret-file=pipeline/helm3/appchart/templates/secrets.yaml
+                           """ 
+
                         // helm 3 
                         echo "INFO: Deploy helm templates"
-                        sh """ helm upgrade --install \
+                        sh """ helm upgrade --install --debug \
                                ${HELM_NAME} \
                                --create-namespace=true \
                                --namespace=${NAMESPACE} \
