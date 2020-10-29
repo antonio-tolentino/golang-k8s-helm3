@@ -79,6 +79,7 @@ pipeline {
             agent {
                 kubernetes {
                     cloud 'local'
+                    label "sonar-scanner-cli-agent-${BUILD_NUMBER}"
                     yamlFile 'pipeline/agents/sonar-scanner-cli.yml'
                 }
             }  
@@ -239,6 +240,7 @@ pipeline {
             //agent {
             //    kubernetes {
             //        cloud 'local'
+            //        label "gcpdeploy-agent-${BUILD_NUMBER}"
             //        yamlFile 'pipeline/agents/gcpdeploy.yml'
             //    }
             //}  
@@ -246,6 +248,7 @@ pipeline {
             agent {
                 kubernetes {
                     cloud 'local'
+                    label "gcpdeploy-agent-${BUILD_NUMBER}"
                     yaml """
                          apiVersion: v1
                          kind: Pod
