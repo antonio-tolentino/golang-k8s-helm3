@@ -320,7 +320,7 @@ pipeline {
 
                         // helm 3 
                         echo "INFO: Deploy helm templates"
-                        sh """ helm upgrade --install \
+                        sh """ helm upgrade --install --dry-run --debug \
                                ${HELM_NAME} \
                                --create-namespace=true \
                                --namespace=${NAMESPACE} \
