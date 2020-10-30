@@ -252,7 +252,7 @@ pipeline {
                          kind: Pod
                          metadata:
                            labels:
-                             sidecar: gcpdeploy
+                             app: gcpdeploy
                            namespace: jenkins
                          spec:
                            serviceAccount: jenkins
