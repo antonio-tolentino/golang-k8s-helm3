@@ -235,13 +235,14 @@ pipeline {
                     branch "master"
                 }
             }
+            // AGENT PREFERABLE USAGE
             //agent {
             //    kubernetes {
             //        cloud 'local'
             //        yamlFile 'pipeline/agents/gcpdeploy.yml'
             //    }
             //}  
-            // IF IMAGE REPOSITORY HAS TO BE FLEXIBLE
+            // USE ONLY IF IMAGE REPOSITORY HAS TO BE FLEXIBLE
             agent {
                 kubernetes {
                     cloud 'local'
