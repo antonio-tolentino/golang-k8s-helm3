@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Pod
 metadata:
   labels:
-    sidecar: kaniko
+    app: kaniko
   namespace: jenkins
 spec:
   containers:
