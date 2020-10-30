@@ -8,10 +8,11 @@ pipeline {
         COMPANY_NAME = "Acme Corporation"
 
         // GCP
-        PROJECT = "arquitetura-207620"
+        GCP_PROJECT = "arquitetura-207620"
+        GCP_SECRET = "books-secrets"
         
         //Image registry
-        REGISTRY = "gcr.io/${PROJECT}"
+        REGISTRY = "gcr.io/${GCP_PROJECT}"
 
         // Namespaces 
         DEVELOP_NAMESPACE = "develop"
@@ -235,13 +236,14 @@ pipeline {
                     branch "master"
                 }
             }
+            // AGENT PREFERABLE USAGE
             //agent {
             //    kubernetes {
             //        cloud 'local'
             //        yamlFile 'pipeline/agents/gcpdeploy.yml'
             //    }
             //}  
-            // IF IMAGE REPOSITORY HAS TO BE FLEXIBLE
+            // USE ONLY IF IMAGE REPOSITORY HAS TO BE FLEXIBLE
             agent {
                 kubernetes {
                     cloud 'local'
@@ -311,8 +313,8 @@ pipeline {
                         }
 
                         // inject secrets from GCP Secret Manager
-                        sh """  gcpsecrets --project=${PROJECT} \
-                                --gcp-secret-name=app-secret \
+                        sh """  gcpsecrets --project=${GCP_PROJECT} \
+                                --gcp-secret-name=${GCP_SECRET}\
                                 --create-new-secret-file=no \
                                 --kube-secret-file=pipeline/helm3/appchart/templates/secrets.yaml
                            """ 

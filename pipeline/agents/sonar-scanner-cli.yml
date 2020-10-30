@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Pod
 metadata:
   labels:
-    sidecar: sonar-scanner-cli
+    app: sonar-scanner-cli
   namespace: jenkins
 spec:
   containers:
