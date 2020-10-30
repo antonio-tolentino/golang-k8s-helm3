@@ -8,7 +8,8 @@ pipeline {
         COMPANY_NAME = "Acme Corporation"
 
         // GCP
-        PROJECT = "arquitetura-207620"
+        GCP_PROJECT = "arquitetura-207620"
+        GCP_SECRET = "books-secrets"
         
         //Image registry
         REGISTRY = "gcr.io/${PROJECT}"
@@ -312,8 +313,8 @@ pipeline {
                         }
 
                         // inject secrets from GCP Secret Manager
-                        sh """  gcpsecrets --project=${PROJECT} \
-                                --gcp-secret-name=app-secret \
+                        sh """  gcpsecrets --project=${GCP_PROJECT} \
+                                --gcp-secret-name=${GCP_SECRET}\
                                 --create-new-secret-file=no \
                                 --kube-secret-file=pipeline/helm3/appchart/templates/secrets.yaml
                            """ 
