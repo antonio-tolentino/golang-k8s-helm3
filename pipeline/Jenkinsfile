@@ -11,7 +11,7 @@ pipeline {
         GCP_PROJECT = "arquitetura-207620"
         GCP_SECRET = "books-secrets"
         
-        //Image registry
+        // Image registry
         REGISTRY = "gcr.io/${GCP_PROJECT}"
 
         // Namespaces 
