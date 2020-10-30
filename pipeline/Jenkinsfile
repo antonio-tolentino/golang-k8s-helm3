@@ -111,7 +111,7 @@ pipeline {
             agent {
                 kubernetes {
                     cloud 'local'
-                    yamlFile 'pipeline/agents/kaniko-gcp.yml'
+                    yamlFile 'pipeline/agents/gcpkaniko.yml'
                 }
             } 
             environment{
