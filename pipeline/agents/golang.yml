@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Pod
 metadata:
   labels:
-    sidecar: golang
+    app: golang
   namespace: jenkins
 spec:
   containers:

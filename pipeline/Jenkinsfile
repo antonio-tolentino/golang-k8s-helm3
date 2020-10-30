@@ -310,7 +310,7 @@ pipeline {
                             NAMESPACE = PROD_NAMESPACE
                         }
 
-                        // inject secrets
+                        // inject secrets from GCP Secret Manager
                         sh """  gcpsecrets --project=${PROJECT} \
                                 --gcp-secret-name=app-secret \
                                 --create-new-secret-file=no \
@@ -352,7 +352,7 @@ pipeline {
                 script{
                     echo 'INFO: Pipeline finished successifully!'
 
-                    // body replace
+                    // email body replace
                     echo 'INFO: Replacing successful email template tokens'
                     sh "sed -i 's/{APP_NAME}/${APP_NAME}/g' pipeline/email/successful_deploy_body_html.tpl"
                     sh "sed -i 's/{JOB_NAME}/${JOB_NAME.replace('/','\\/').replace('%2F','\\/')}/g' pipeline/email/successful_deploy_body_html.tpl"
