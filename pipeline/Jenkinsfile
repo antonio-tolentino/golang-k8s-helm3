@@ -12,7 +12,7 @@ pipeline {
         GCP_SECRET = "books-secrets"
         
         //Image registry
-        REGISTRY = "gcr.io/${PROJECT}"
+        REGISTRY = "gcr.io/${GCP_PROJECT}"
 
         // Namespaces 
         DEVELOP_NAMESPACE = "develop"
