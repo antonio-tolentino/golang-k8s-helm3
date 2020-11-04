@@ -40,8 +40,8 @@ pipeline {
             steps{
                 script{
                     //slack
-                    slackSend channel: "#jenkins-test", message: "Build Started: ${env.JOB_NAME}
-                    
+                    slackSend channel: "#jenkins-test", message: "Build Started: ${env.JOB_NAME}"
+
                     echo "INFO: Checkout code from branch [ ${BRANCH_NAME} ]"
                     checkout scm
                 }
