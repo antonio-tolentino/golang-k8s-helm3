@@ -41,8 +41,9 @@ pipeline {
                 script{
                     //slack
                     slackSend channel: "#jenkins-test", 
-                              tokenCredentialId:"Slack", 
+                              tokenCredentialId:"slack token", 
                               teamDomain: "platformbuilders",
+                              color: "good",
                               message: "Build Started: ${env.JOB_NAME}"
 
                     echo "INFO: Checkout code from branch [ ${BRANCH_NAME} ]"
