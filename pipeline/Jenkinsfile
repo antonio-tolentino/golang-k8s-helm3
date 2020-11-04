@@ -41,7 +41,7 @@ pipeline {
                 script{
                     //slack
                     slackSend channel: "#jenkins-test", 
-                              tokenCredentialId:"slack token", 
+                              tokenCredentialId:"Slack", 
                               teamDomain: "platformbuilders",
                               color: "good",
                               message: "Build Started: ${env.JOB_NAME}"
