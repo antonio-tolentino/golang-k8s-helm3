@@ -1,4 +1,4 @@
-*Info - Starting Build.*
+*Failure! Pipeline finished with errors.*
 
 • *Application*: {APP_NAME}
 • *Job*: {JOB_NAME}
