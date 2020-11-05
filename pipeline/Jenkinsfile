@@ -24,6 +24,10 @@ pipeline {
         RELEASE_ENV = "hml"
         PROD_ENV = "prd"
 
+        // Slack notification
+        SLACK_CHANNEL = "#jenkins-test"
+        SLACK_CREDENTIAL_ID = "Slack"
+        SLACK_DOMAIN = "platformbuilders"
 
     }
 
@@ -39,16 +43,19 @@ pipeline {
             agent { node { label 'linux' } }
             steps{
                 script{
-                    //slack
-                    slackSend channel: "#jenkins-test", 
-                              tokenCredentialId:"Slack", 
-                              teamDomain: "platformbuilders",
+                    echo "INFO: Checkout code from branch [ ${BRANCH_NAME} ]"
+                    checkout scm
+                }
+            }
+            post{
+                success{
+                    //slack notification
+                    slackSend channel: "${SLACK_CHANNEL}", 
+                              tokenCredentialId:"${SLACK_CREDENTIAL_ID}", 
+                              teamDomain: "${SLACK_DOMAIN}",
                               botUser: true,
                               color: "good",
                               message: "Build Started: ${env.JOB_NAME}"
-
-                    echo "INFO: Checkout code from branch [ ${BRANCH_NAME} ]"
-                    checkout scm
                 }
             }
             
