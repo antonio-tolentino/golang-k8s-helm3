@@ -396,7 +396,7 @@ pipeline {
                     
                     echo 'INFO: Sending email notification'
                     emailext body: MAIL_BODY, 
-                    subject: "Jenkins notification [ Job: ${JOB_NAME.replace('%2F','/')} ] [ Status: ${currentBuild.currentResult} ].",
+                    subject: "Jenkins notification [ Job: ${JOB_NAME.replace('%2F','/')} ] [ Build: ${BUILD_NUMBER} ] [ Status: ${currentBuild.currentResult} ].",
                     to: '$DEFAULT_RECIPIENTS'
 
                     if (SLACK_CHANNEL != "" && SLACK_CREDENTIAL_ID != "" && SLACK_DOMAIN != ""){
@@ -443,7 +443,7 @@ pipeline {
 
                     echo 'INFO: Sending email notification'
                     emailext body: MAIL_BODY, 
-                    subject: "Jenkins notification [ Job: ${JOB_NAME.replace('%2F','/')} ] [ Status: ${currentBuild.currentResult} ].",
+                    subject: "Jenkins notification [ Job: ${JOB_NAME.replace('%2F','/')} ] [ Build: ${BUILD_NUMBER} ] [ Status: ${currentBuild.currentResult} ].",
                     to: emailextrecipients([culprits()])
 
                     if (SLACK_CHANNEL != "" && SLACK_CREDENTIAL_ID != "" && SLACK_DOMAIN != ""){
