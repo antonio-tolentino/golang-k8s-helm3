@@ -11,7 +11,7 @@ pipeline {
         GCP_PROJECT = "arquitetura-207620"
         GCP_SECRET = "books-secrets"
         
-        //Image registry
+        // Image registry
         REGISTRY = "gcr.io/${GCP_PROJECT}"
 
         // Namespaces 
@@ -24,6 +24,11 @@ pipeline {
         RELEASE_ENV = "hml"
         PROD_ENV = "prd"
 
+        // Slack notification
+        // Any empty variable will skip notification
+        SLACK_CHANNEL = "#jenkins-test"
+        SLACK_CREDENTIAL_ID = "Slack"
+        SLACK_DOMAIN = "platformbuilders"
 
     }
 
@@ -43,7 +48,6 @@ pipeline {
                     checkout scm
                 }
             }
-            
         }
 
         stage('Code: Compile and Test'){
@@ -189,8 +193,28 @@ pipeline {
                     MAIL_BODY = '${FILE, path="pipeline/email/approval_body_html.tpl"}' 
                     echo "INFO: Sending email notification"
                     emailext body: MAIL_BODY, 
-                    subject: "Jenkins notificaton [ Job: ${JOB_NAME.replace('%2F','/')} ] [ Build: ${BUILD_NUMBER} ] is waiting for approval.",
+                    subject: "Jenkins notification [ Job: ${JOB_NAME.replace('%2F','/')} ] [ Build: ${BUILD_NUMBER} ] is waiting for approval.",
                     to: '$DEFAULT_RECIPIENTS'
+
+                    if (SLACK_CHANNEL != "" && SLACK_CREDENTIAL_ID != "" && SLACK_DOMAIN != ""){
+                        // Slack template replace
+                        echo 'INFO: Replacing approval slack template tokens'
+                        sh "sed -i 's/{APP_NAME}/${APP_NAME}/g' pipeline/slack/approval_deploy.md"
+                        sh "sed -i 's/{JOB_NAME}/${JOB_NAME.replace('/','\\/').replace('%2F','\\/')}/g' pipeline/slack/approval_deploy.md"
+                        sh "sed -i 's/{BRANCH_NAME}/${BRANCH_NAME.replace('/','\\/')}/g' pipeline/slack/approval_deploy.md"
+                        sh "sed -i 's/{BUILD_URL}/${BUILD_URL.replace('/','\\/')}/g' pipeline/slack/approval_deploy.md"
+                        sh "sed -i 's/{RUN_DISPLAY_URL}/${RUN_DISPLAY_URL.replace('/','\\/')}/g' pipeline/slack/approval_deploy.md"
+                        def slackMsg = readFile(file: 'pipeline/slack/approval_deploy.md')
+
+                        //slack notification
+                        slackSend channel: "${SLACK_CHANNEL}", 
+                                  tokenCredentialId:"${SLACK_CREDENTIAL_ID}", 
+                                  teamDomain: "${SLACK_DOMAIN}",
+                                  botUser: true,
+                                  color: "warning",
+                                  message: "${slackMsg}"
+                    }
+
                 }
             }            
         } // end stage approve notification
@@ -252,7 +276,7 @@ pipeline {
                          kind: Pod
                          metadata:
                            labels:
-                             sidecar: gcpdeploy
+                             app: gcpdeploy
                            namespace: jenkins
                          spec:
                            serviceAccount: jenkins
@@ -319,6 +343,8 @@ pipeline {
                                 --kube-secret-file=pipeline/helm3/appchart/templates/secrets.yaml
                            """ 
 
+                        sh "cat pipeline/helm3/appchart/templates/secrets.yaml"   
+
                         // helm 3 
                         echo "INFO: Deploy helm templates"
                         sh """ helm upgrade --install --debug \
@@ -370,9 +396,31 @@ pipeline {
                     
                     echo 'INFO: Sending email notification'
                     emailext body: MAIL_BODY, 
-                    subject: "Jenkins notificaton [ Job: ${JOB_NAME.replace('%2F','/')} ] [ Status: ${currentBuild.currentResult} ].",
+                    subject: "Jenkins notification [ Job: ${JOB_NAME.replace('%2F','/')} ] [ Status: ${currentBuild.currentResult} ].",
                     to: '$DEFAULT_RECIPIENTS'
+
+                    if (SLACK_CHANNEL != "" && SLACK_CREDENTIAL_ID != "" && SLACK_DOMAIN != ""){
+                        // Slack template replace
+                        echo 'INFO: Replacing start build slack template tokens'
+                        sh "sed -i 's/{APP_NAME}/${APP_NAME}/g' pipeline/slack/successful_deploy.md"
+                        sh "sed -i 's/{JOB_NAME}/${JOB_NAME.replace('/','\\/').replace('%2F','\\/')}/g' pipeline/slack/successful_deploy.md"
+                        sh "sed -i 's/{BRANCH_NAME}/${BRANCH_NAME.replace('/','\\/')}/g' pipeline/slack/successful_deploy.md"
+                        sh "sed -i 's/{BUILD_URL}/${BUILD_URL.replace('/','\\/')}/g' pipeline/slack/successful_deploy.md"
+                        sh "sed -i 's/{RUN_DISPLAY_URL}/${RUN_DISPLAY_URL.replace('/','\\/')}/g' pipeline/slack/successful_deploy.md"
+                        sh "sed -i 's/{DURATION_STRING}/${currentBuild.durationString.replace(' and counting', '')}/g' pipeline/slack/successful_deploy.md"
+                        def slackMsg = readFile(file: 'pipeline/slack/successful_deploy.md')
+
+                        //slack notification
+                        slackSend channel: "${SLACK_CHANNEL}", 
+                                  tokenCredentialId:"${SLACK_CREDENTIAL_ID}", 
+                                  teamDomain: "${SLACK_DOMAIN}",
+                                  botUser: true,
+                                  color: "good",
+                                  message: "${slackMsg}"
+                    }
+
                     
+
                 }
             }            
         }
@@ -395,8 +443,28 @@ pipeline {
 
                     echo 'INFO: Sending email notification'
                     emailext body: MAIL_BODY, 
-                    subject: "Jenkins notificaton [ Job: ${JOB_NAME.replace('%2F','/')} ] [ Status: ${currentBuild.currentResult} ].",
+                    subject: "Jenkins notification [ Job: ${JOB_NAME.replace('%2F','/')} ] [ Status: ${currentBuild.currentResult} ].",
                     to: emailextrecipients([culprits()])
+
+                    if (SLACK_CHANNEL != "" && SLACK_CREDENTIAL_ID != "" && SLACK_DOMAIN != ""){
+                        // Slack template replace
+                        echo 'INFO: Replacing start build slack template tokens'
+                        sh "sed -i 's/{APP_NAME}/${APP_NAME}/g' pipeline/slack/failed_deploy.md"
+                        sh "sed -i 's/{JOB_NAME}/${JOB_NAME.replace('/','\\/').replace('%2F','\\/')}/g' pipeline/slack/failed_deploy.md"
+                        sh "sed -i 's/{BRANCH_NAME}/${BRANCH_NAME.replace('/','\\/')}/g' pipeline/slack/failed_deploy.md"
+                        sh "sed -i 's/{BUILD_URL}/${BUILD_URL.replace('/','\\/')}/g' pipeline/slack/failed_deploy.md"
+                        sh "sed -i 's/{RUN_DISPLAY_URL}/${RUN_DISPLAY_URL.replace('/','\\/')}/g' pipeline/slack/failed_deploy.md"
+                        def slackMsg = readFile(file: 'pipeline/slack/failed_deploy.md')
+
+                        //slack notification
+                        slackSend channel: "${SLACK_CHANNEL}", 
+                                  tokenCredentialId:"${SLACK_CREDENTIAL_ID}", 
+                                  teamDomain: "${SLACK_DOMAIN}",
+                                  botUser: true,
+                                  color: "danger",
+                                  message: "${slackMsg}"
+                    }
+
 
                 }
             }            
