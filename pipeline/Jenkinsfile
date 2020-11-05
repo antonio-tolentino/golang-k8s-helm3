@@ -25,6 +25,7 @@ pipeline {
         PROD_ENV = "prd"
 
         // Slack notification
+        // Any empty variable will skip notification
         SLACK_CHANNEL = "#jenkins-test"
         SLACK_CREDENTIAL_ID = "Slack"
         SLACK_DOMAIN = "platformbuilders"
