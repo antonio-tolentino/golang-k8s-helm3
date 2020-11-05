@@ -55,8 +55,14 @@ pipeline {
                               teamDomain: "${SLACK_DOMAIN}",
                               botUser: true,
                               color: "good",
-                              message: """Jenkins notification - ${env.JOB_NAME} ${env.BUILD_NUMBER} 
-                                       (<${env.BUILD_URL}|Open>)"""
+                              //message: "Jenkins notification - ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)"
+                              message: """ Jenkins notification Starting Build \n
+                                           Application: ${APP_NAME}
+                                           Job: ${JOB_NAME.replace('/','\\/').replace('%2F','\\/')}
+                                           Branch: ${BRANCH_NAME.replace('/','\\/')}
+                                           Classic Console: ${BUILD_URL.replace('/','\\/')}
+                                           Blue Ocean Console: ${RUN_DISPLAY_URL.replace('/','\\/')} 
+                                       """
                 }
             }
             
