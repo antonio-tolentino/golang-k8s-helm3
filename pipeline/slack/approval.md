@@ -1,4 +1,4 @@
-*Jenkins notification - Starting Build.*
+*Warning! Pipeline is waiting for your approval to proceed.*
 
 Application: {APP_NAME}\n
 Job: {JOB_NAME}\n

@@ -50,7 +50,8 @@ pipeline {
             post{
                 success{
                     script{
-                       
+                        
+                        // Slack template replace
                         echo 'INFO: Replacing start build slack template tokens'
                         sh "sed -i 's/{APP_NAME}/${APP_NAME}/g' pipeline/slack/start_build.md"
                         sh "sed -i 's/{JOB_NAME}/${JOB_NAME.replace('/','\\/').replace('%2F','\\/')}/g' pipeline/slack/start_build.md"
@@ -221,13 +222,23 @@ pipeline {
                     subject: "Jenkins notification [ Job: ${JOB_NAME.replace('%2F','/')} ] [ Build: ${BUILD_NUMBER} ] is waiting for approval.",
                     to: '$DEFAULT_RECIPIENTS'
 
+                    // Slack template replace
+                    echo 'INFO: Replacing approval slack template tokens'
+                    sh "sed -i 's/{APP_NAME}/${APP_NAME}/g' pipeline/slack/approval.md"
+                    sh "sed -i 's/{JOB_NAME}/${JOB_NAME.replace('/','\\/').replace('%2F','\\/')}/g' pipeline/slack/approval.md"
+                    sh "sed -i 's/{BRANCH_NAME}/${BRANCH_NAME.replace('/','\\/')}/g' pipeline/slack/approval.md"
+                    sh "sed -i 's/{BUILD_URL}/${BUILD_URL.replace('/','\\/')}/g' pipeline/slack/approval.md"
+                    sh "sed -i 's/{RUN_DISPLAY_URL}/${RUN_DISPLAY_URL.replace('/','\\/')}/g' pipeline/slack/approval.md"
+                    def slackMsg = readFile(file: 'pipeline/slack/approval.md')
+                    
                     //slack notification
                     slackSend channel: "${SLACK_CHANNEL}", 
                               tokenCredentialId:"${SLACK_CREDENTIAL_ID}", 
                               teamDomain: "${SLACK_DOMAIN}",
                               botUser: true,
                               color: "warning",
-                              message: "Jenkins notification [ Job: ${JOB_NAME.replace('%2F','/')} ] [ Build: ${BUILD_NUMBER} ] is waiting for approval.(<${env.BUILD_URL}|Open>)"
+                              //message: "Jenkins notification - ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)"
+                              message: "${slackMsg}"
                 }
             }            
         } // end stage approve notification
