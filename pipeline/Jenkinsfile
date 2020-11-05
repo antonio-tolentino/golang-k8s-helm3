@@ -55,7 +55,8 @@ pipeline {
                               teamDomain: "${SLACK_DOMAIN}",
                               botUser: true,
                               color: "good",
-                              message: "Jenkins notification - ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)"
+                              message: "Jenkins notification - ${env.JOB_NAME} ${env.BUILD_NUMBER} 
+                                       (<${env.BUILD_URL}|Open>)"
                 }
             }
             
