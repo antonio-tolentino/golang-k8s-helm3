@@ -195,7 +195,7 @@ pipeline {
                     subject: "Jenkins notification [ Job: ${JOB_NAME.replace('%2F','/')} ] [ Build: ${BUILD_NUMBER} ] is waiting for approval.",
                     to: '$DEFAULT_RECIPIENTS'
 
-                    if (SLACK_CHANNEL != "") && (SLACK_CREDENTIAL_ID != "") && (SLACK_DOMAIN != ""){
+                    if (SLACK_CHANNEL != "" && SLACK_CREDENTIAL_ID != "" && SLACK_DOMAIN != ""){
                         // Slack template replace
                         echo 'INFO: Replacing approval slack template tokens'
                         sh "sed -i 's/{APP_NAME}/${APP_NAME}/g' pipeline/slack/approval_deploy.md"
@@ -398,7 +398,7 @@ pipeline {
                     subject: "Jenkins notification [ Job: ${JOB_NAME.replace('%2F','/')} ] [ Status: ${currentBuild.currentResult} ].",
                     to: '$DEFAULT_RECIPIENTS'
 
-                    if (SLACK_CHANNEL != "") && (SLACK_CREDENTIAL_ID != "") && (SLACK_DOMAIN != ""){
+                    if (SLACK_CHANNEL != "" && SLACK_CREDENTIAL_ID != "" && SLACK_DOMAIN != ""){
                         // Slack template replace
                         echo 'INFO: Replacing start build slack template tokens'
                         sh "sed -i 's/{APP_NAME}/${APP_NAME}/g' pipeline/slack/successful_deploy.md"
@@ -445,7 +445,7 @@ pipeline {
                     subject: "Jenkins notification [ Job: ${JOB_NAME.replace('%2F','/')} ] [ Status: ${currentBuild.currentResult} ].",
                     to: emailextrecipients([culprits()])
 
-                    if (SLACK_CHANNEL != "") && (SLACK_CREDENTIAL_ID != "") && (SLACK_DOMAIN != ""){
+                    if (SLACK_CHANNEL != "" && SLACK_CREDENTIAL_ID != "" && SLACK_DOMAIN != ""){
                         // Slack template replace
                         echo 'INFO: Replacing start build slack template tokens'
                         sh "sed -i 's/{APP_NAME}/${APP_NAME}/g' pipeline/slack/failed_deploy.md"
