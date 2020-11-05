@@ -57,15 +57,16 @@ pipeline {
                         sh "sed -i 's/{BRANCH_NAME}/${BRANCH_NAME.replace('/','\\/')}/g' pipeline/slack/start_build.md"
                         sh "sed -i 's/{BUILD_URL}/${BUILD_URL.replace('/','\\/')}/g' pipeline/slack/start_build.md"
                         sh "sed -i 's/{RUN_DISPLAY_URL}/${RUN_DISPLAY_URL.replace('/','\\/')}/g' pipeline/slack/start_build.md"
-                        def data = readFile(file: 'pipeline/slack/start_build.md')
-                        println(data)
+                        def slackMsg = readFile(file: 'pipeline/slack/start_build.md')
+                        
                         //slack notification
                         slackSend channel: "${SLACK_CHANNEL}", 
                                   tokenCredentialId:"${SLACK_CREDENTIAL_ID}", 
                                   teamDomain: "${SLACK_DOMAIN}",
                                   botUser: true,
                                   color: "good",
-                                  message: "Jenkins notification - ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)"
+                                  //message: "Jenkins notification - ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)"
+                                  message: "${slackMsg}"
                         
                     }
 
