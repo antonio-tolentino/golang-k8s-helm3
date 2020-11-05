@@ -1,4 +1,4 @@
-*Success!</strong> Pipeline finished without errors.*
+*Success! Pipeline finished without errors.*
 
 • *Application*: {APP_NAME}
 • *Job*: {JOB_NAME}
