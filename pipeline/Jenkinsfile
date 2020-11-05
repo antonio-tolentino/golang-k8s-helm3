@@ -49,20 +49,23 @@ pipeline {
             }
             post{
                 success{
-                    //slack notification
-                    def msg = "Jenkins notification Starting Build\n"
-                        msg = msg + "Application: ${APP_NAME}\b"
-                        msg = msg + "Job: ${JOB_NAME.replace('/','\\/').replace('%2F','\\/')}\n"
-                        msg = msg + "Branch: ${BRANCH_NAME.replace('/','\\/')}\n"
-                        msg = msg + "Classic Console: ${BUILD_URL.replace('/','\\/')}\n"
-                        msg = msg + "Blue Ocean Console: ${RUN_DISPLAY_URL.replace('/','\\/')}\n"
-                    slackSend channel: "${SLACK_CHANNEL}", 
-                              tokenCredentialId:"${SLACK_CREDENTIAL_ID}", 
-                              teamDomain: "${SLACK_DOMAIN}",
-                              botUser: true,
-                              color: "good",
-                              //message: "Jenkins notification - ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)"
-                              message: "${msg}"
+                    script{
+                        //slack notification
+                        def msg = "Jenkins notification Starting Build\n"
+                            msg = msg + "Application: ${APP_NAME}\b"
+                            msg = msg + "Job: ${JOB_NAME.replace('/','\\/').replace('%2F','\\/')}\n"
+                            msg = msg + "Branch: ${BRANCH_NAME.replace('/','\\/')}\n"
+                            msg = msg + "Classic Console: ${BUILD_URL.replace('/','\\/')}\n"
+                            msg = msg + "Blue Ocean Console: ${RUN_DISPLAY_URL.replace('/','\\/')}\n"
+                        slackSend channel: "${SLACK_CHANNEL}", 
+                                  tokenCredentialId:"${SLACK_CREDENTIAL_ID}", 
+                                  teamDomain: "${SLACK_DOMAIN}",
+                                  botUser: true,
+                                  color: "good",
+                                  //message: "Jenkins notification - ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)"
+                                  message: "${msg}"
+                    }
+
                 }
             }
             
