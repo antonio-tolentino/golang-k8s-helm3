@@ -52,12 +52,12 @@ pipeline {
                     script{
                        
                         echo 'INFO: Replacing start build slack template tokens'
-                        sh "sed -i 's/{APP_NAME}/${APP_NAME}/g' pipeline/slack/start_build.tpl"
-                        sh "sed -i 's/{JOB_NAME}/${JOB_NAME.replace('/','\\/').replace('%2F','\\/')}/g' pipeline/slack/start_build.tpl"
-                        sh "sed -i 's/{BRANCH_NAME}/${BRANCH_NAME.replace('/','\\/')}/g' pipeline/slack/start_build.tpl"
-                        sh "sed -i 's/{BUILD_URL}/${BUILD_URL.replace('/','\\/')}/g' pipeline/slack/start_build.tpl"
-                        sh "sed -i 's/{RUN_DISPLAY_URL}/${RUN_DISPLAY_URL.replace('/','\\/')}/g' pipeline/slack/start_build.tpl"
-                        def data = readFile(file: 'pipeline/slack/start_build.tpl')
+                        sh "sed -i 's/{APP_NAME}/${APP_NAME}/g' pipeline/slack/start_build.md"
+                        sh "sed -i 's/{JOB_NAME}/${JOB_NAME.replace('/','\\/').replace('%2F','\\/')}/g' pipeline/slack/start_build.md"
+                        sh "sed -i 's/{BRANCH_NAME}/${BRANCH_NAME.replace('/','\\/')}/g' pipeline/slack/start_build.md"
+                        sh "sed -i 's/{BUILD_URL}/${BUILD_URL.replace('/','\\/')}/g' pipeline/slack/start_build.md"
+                        sh "sed -i 's/{RUN_DISPLAY_URL}/${RUN_DISPLAY_URL.replace('/','\\/')}/g' pipeline/slack/start_build.md"
+                        def data = readFile(file: 'pipeline/slack/start_build.md')
                         println(data)
                         //slack notification
                         slackSend channel: "${SLACK_CHANNEL}", 
