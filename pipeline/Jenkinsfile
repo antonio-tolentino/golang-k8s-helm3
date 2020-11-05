@@ -55,7 +55,7 @@ pipeline {
                               teamDomain: "${SLACK_DOMAIN}",
                               botUser: true,
                               color: "good",
-                              message: "Build Started - ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)"
+                              message: "Jenkins notification - ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)"
                 }
             }
             
@@ -204,7 +204,7 @@ pipeline {
                     MAIL_BODY = '${FILE, path="pipeline/email/approval_body_html.tpl"}' 
                     echo "INFO: Sending email notification"
                     emailext body: MAIL_BODY, 
-                    subject: "Jenkins notificaton [ Job: ${JOB_NAME.replace('%2F','/')} ] [ Build: ${BUILD_NUMBER} ] is waiting for approval.",
+                    subject: "Jenkins notification [ Job: ${JOB_NAME.replace('%2F','/')} ] [ Build: ${BUILD_NUMBER} ] is waiting for approval.",
                     to: '$DEFAULT_RECIPIENTS'
 
                     //slack notification
@@ -213,7 +213,7 @@ pipeline {
                               teamDomain: "${SLACK_DOMAIN}",
                               botUser: true,
                               color: "warning",
-                              message: "Jenkins notificaton [ Job: ${JOB_NAME.replace('%2F','/')} ] [ Build: ${BUILD_NUMBER} ] is waiting for approval.(<${env.BUILD_URL}|Open>)"
+                              message: "Jenkins notification [ Job: ${JOB_NAME.replace('%2F','/')} ] [ Build: ${BUILD_NUMBER} ] is waiting for approval.(<${env.BUILD_URL}|Open>)"
                 }
             }            
         } // end stage approve notification
@@ -395,7 +395,7 @@ pipeline {
                     
                     echo 'INFO: Sending email notification'
                     emailext body: MAIL_BODY, 
-                    subject: "Jenkins notificaton [ Job: ${JOB_NAME.replace('%2F','/')} ] [ Status: ${currentBuild.currentResult} ].",
+                    subject: "Jenkins notification [ Job: ${JOB_NAME.replace('%2F','/')} ] [ Status: ${currentBuild.currentResult} ].",
                     to: '$DEFAULT_RECIPIENTS'
 
                     //slack notification
@@ -404,7 +404,7 @@ pipeline {
                               teamDomain: "${SLACK_DOMAIN}",
                               botUser: true,
                               color: "good",
-                              message: "Jenkins notificaton [ Job: ${JOB_NAME.replace('%2F','/')} ] [ Status: ${currentBuild.currentResult} ]."
+                              message: "Jenkins notification [ Job: ${JOB_NAME.replace('%2F','/')} ] [ Status: ${currentBuild.currentResult} ]."
 
                     
 
@@ -430,7 +430,7 @@ pipeline {
 
                     echo 'INFO: Sending email notification'
                     emailext body: MAIL_BODY, 
-                    subject: "Jenkins notificaton [ Job: ${JOB_NAME.replace('%2F','/')} ] [ Status: ${currentBuild.currentResult} ].",
+                    subject: "Jenkins notification [ Job: ${JOB_NAME.replace('%2F','/')} ] [ Status: ${currentBuild.currentResult} ].",
                     to: emailextrecipients([culprits()])
 
                     //slack notification
@@ -439,7 +439,7 @@ pipeline {
                               teamDomain: "${SLACK_DOMAIN}",
                               botUser: true,
                               color: "danger",
-                              message: "Jenkins notificaton [ Job: ${JOB_NAME.replace('%2F','/')} ] [ Status: ${currentBuild.currentResult} ].(<${env.BUILD_URL}|Open>)"
+                              message: "Jenkins notification [ Job: ${JOB_NAME.replace('%2F','/')} ] [ Status: ${currentBuild.currentResult} ].(<${env.BUILD_URL}|Open>)"
 
                 }
             }            
