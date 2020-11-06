@@ -418,9 +418,6 @@ pipeline {
                                   color: "good",
                                   message: "${slackMsg}"
                     }
-
-                    
-
                 }
             }            
         }
@@ -464,8 +461,6 @@ pipeline {
                                   color: "danger",
                                   message: "${slackMsg}"
                     }
-
-
                 }
             }            
         }
