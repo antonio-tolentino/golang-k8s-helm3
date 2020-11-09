@@ -54,7 +54,7 @@ pipeline {
             agent {
                 kubernetes {
                     cloud 'local'
-                    yamlFile "${env.WORKSPACE}/pipeline/agents/golang.yml"
+                    yamlFile 'pipeline/agents/golang.yml'
                 }
             } 
             steps{
@@ -181,7 +181,7 @@ pipeline {
                 script{
                     echo 'INFO: Send approval notification.'
 
-                    def notification = load("${env.WORKSPACE}/pipeline/helpers/notification.groovy")
+                    def notification = load("${WORKSPACE}/pipeline/helpers/notification.groovy")
                     notification.sendApproval()
 
                 }
@@ -349,7 +349,7 @@ pipeline {
                 script{
                     echo 'INFO: Pipeline finished successifully!'
 
-                    def notification = load("${env.WORKSPACE}/pipeline/helpers/notification.groovy")
+                    def notification = load("${WORKSPACE}/pipeline/helpers/notification.groovy")
                     notification.sendSuccess()
 
                 }
@@ -360,7 +360,7 @@ pipeline {
                 script{
                     echo 'Error: Pipeline finished with failure!'
 
-                    def notification = load("${env.WORKSPACE}/pipeline/helpers/notification.groovy")
+                    def notification = load("${WORKSPACE}/pipeline/helpers/notification.groovy")
                     notification.sendFailure()
 
                 }
