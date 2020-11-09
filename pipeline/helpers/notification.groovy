@@ -5,7 +5,7 @@ def sendSuccess() {
     slackTemplate = "${WORKSPACE}/pipeline/slack/successful_deploy.md"
 
     // email body replace
-    echo 'INFO: Replacing successful email template tokens'
+    echo 'INFO: Replacing success email template tokens'
     sh "sed -i 's/{APP_NAME}/${APP_NAME}/g' ${emailTemplate}"
     sh "sed -i 's/{JOB_NAME}/${JOB_NAME.replace('/','\\/').replace('%2F','\\/')}/g' ${emailTemplate}"
     sh "sed -i 's/{BRANCH_NAME}/${BRANCH_NAME.replace('/','\\/')}/g' ${emailTemplate}"
@@ -28,7 +28,7 @@ def sendSuccess() {
 
     if (SLACK_CHANNEL != "" && SLACK_CREDENTIAL_ID != "" && SLACK_DOMAIN != ""){
         // Slack template replace
-        echo 'INFO: Replacing start build slack template tokens'
+        echo 'INFO: Replacing success slack template tokens'
         sh "sed -i 's/{APP_NAME}/${APP_NAME}/g' ${slackTemplate}"
         sh "sed -i 's/{JOB_NAME}/${JOB_NAME.replace('/','\\/').replace('%2F','\\/')}/g' ${slackTemplate}"
         sh "sed -i 's/{BRANCH_NAME}/${BRANCH_NAME.replace('/','\\/')}/g' ${slackTemplate}"
@@ -58,7 +58,7 @@ def sendFailure(){
     slackTemplate = "${WORKSPACE}/pipeline/slack/failed_deploy.md"
 
     // body replace
-    echo 'INFO: Replacing fail email template tokens'
+    echo 'INFO: Replacing failure email template tokens'
     sh "sed -i 's/{APP_NAME}/${APP_NAME}/g' ${emailTemplate}"
     sh "sed -i 's/{JOB_NAME}/${JOB_NAME.replace('/','\\/').replace('%2F','\\/')}/g' ${emailTemplate}"
     sh "sed -i 's/{BRANCH_NAME}/${BRANCH_NAME.replace('/','\\/')}/g' ${emailTemplate}"
@@ -80,7 +80,7 @@ def sendFailure(){
 
     if (SLACK_CHANNEL != "" && SLACK_CREDENTIAL_ID != "" && SLACK_DOMAIN != ""){
         // Slack template replace
-        echo 'INFO: Replacing start build slack template tokens'
+        echo 'INFO: Replacing failure slack template tokens'
         sh "sed -i 's/{APP_NAME}/${APP_NAME}/g' ${slackTemplate}"
         sh "sed -i 's/{JOB_NAME}/${JOB_NAME.replace('/','\\/').replace('%2F','\\/')}/g' ${slackTemplate}"
         sh "sed -i 's/{BRANCH_NAME}/${BRANCH_NAME.replace('/','\\/')}/g' ${slackTemplate}"
