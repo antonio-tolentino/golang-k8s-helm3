@@ -127,6 +127,11 @@ pipeline {
                 container('kaniko') {
                     script{
                         
+                        def kaniko = load("${WORKSPACE}/pipeline/helpers/kanikoHelper.groovy")
+                        repo = kaniko.generateRepo()
+
+                        echo "*********** repo = ${repo}"
+                        
   
                         if (BRANCH_NAME == 'develop'){
 
@@ -181,7 +186,7 @@ pipeline {
                 script{
                     echo 'INFO: Send approval notification.'
 
-                    def notification = load("${WORKSPACE}/pipeline/helpers/notification.groovy")
+                    def notification = load("${WORKSPACE}/pipeline/helpers/notificationHelper.groovy")
                     notification.sendApproval()
 
                 }
@@ -349,7 +354,7 @@ pipeline {
                 script{
                     echo 'INFO: Pipeline finished successifully!'
 
-                    def notification = load("${WORKSPACE}/pipeline/helpers/notification.groovy")
+                    def notification = load("${WORKSPACE}/pipeline/helpers/notificationHelper.groovy")
                     notification.sendSuccess()
 
                 }
@@ -360,7 +365,7 @@ pipeline {
                 script{
                     echo 'Error: Pipeline finished with failure!'
 
-                    def notification = load("${WORKSPACE}/pipeline/helpers/notification.groovy")
+                    def notification = load("${WORKSPACE}/pipeline/helpers/notificationHelper.groovy")
                     notification.sendFailure()
 
                 }
