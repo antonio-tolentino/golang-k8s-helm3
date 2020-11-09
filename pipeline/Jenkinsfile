@@ -350,7 +350,7 @@ pipeline {
                     echo 'INFO: Pipeline finished successifully!'
 
                     def notification = load("${env.WORKSPACE}/pipeline/helpers/notification.groovy")
-                    notification.success()
+                    notification.sendSuccess()
 
                 }
             }            
@@ -361,7 +361,7 @@ pipeline {
                     echo 'Error: Pipeline finished with failure!'
 
                     def notification = load("${env.WORKSPACE}/pipeline/helpers/notification.groovy")
-                    notification.failure()
+                    notification.sendFailure()
 
                 }
             }            
