@@ -380,10 +380,6 @@ pipeline {
                 script{
                     echo 'INFO: Pipeline finished successifully!'
 
-                    def notification = load("${env.WORKSPACE}/pipeline/helpers/notification.groovy")
-                    notification.successful()
-                    
-                    /*
                     // email body replace
                     echo 'INFO: Replacing successful email template tokens'
                     sh "sed -i 's/{APP_NAME}/${APP_NAME}/g' pipeline/email/successful_deploy_body_html.tpl"
@@ -422,7 +418,6 @@ pipeline {
                                   color: "good",
                                   message: "${slackMsg}"
                     }
-                    */
                 }
             }            
         }
