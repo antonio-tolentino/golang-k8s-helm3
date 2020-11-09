@@ -1,6 +1,6 @@
     
 def sendSuccess() {
-    // success email template
+    // success templates
     emailTemplate = "${WORKSPACE}/pipeline/email/successful_deploy_body_html.tpl"
     slackTemplate = "${WORKSPACE}/pipeline/slack/successful_deploy.md"
 
@@ -16,10 +16,9 @@ def sendSuccess() {
     sh "sed -i 's/{JENKINS_URL}/${JENKINS_URL.replace('/','\\/')}/g' ${emailTemplate}"
 
     // Load mail template
-    //MAIL_BODY = '${FILE, path="pipeline/email/successful_deploy_body_html.tpl"}' 
     mailBody = readFile(file: "${emailTemplate}")
 
-    // send mail notification
+    // Send mail notification
     echo 'INFO: Sending email notification'
     emailext body: "${mailBody}", 
     subject: "Jenkins notification [ Job: ${JOB_NAME.replace('%2F','/')} ] [ Build: ${BUILD_NUMBER} ] [ Status: ${currentBuild.currentResult} ].",
@@ -37,7 +36,7 @@ def sendSuccess() {
         sh "sed -i 's/{RUN_DISPLAY_URL}/${RUN_DISPLAY_URL.replace('/','\\/')}/g' ${slackTemplate}"
         sh "sed -i 's/{DURATION_STRING}/${currentBuild.durationString.replace(' and counting', '')}/g' ${slackTemplate}"
         
-        // Load template
+        // Load Slack template
         slackMsg = readFile(file: "${slackTemplate}")
 
         //slack notification
@@ -54,34 +53,44 @@ def sendSuccess() {
 
 def sendFailure(){
 
+    // failure templates
+    emailTemplate = "${WORKSPACE}/pipeline/email/failed_deploy_body_html.tpl"
+    slackTemplate = "${WORKSPACE}/pipeline/slack/failed_deploy.md"
+
     // body replace
     echo 'INFO: Replacing fail email template tokens'
-    sh "sed -i 's/{APP_NAME}/${APP_NAME}/g' pipeline/email/failed_deploy_body_html.tpl"
-    sh "sed -i 's/{JOB_NAME}/${JOB_NAME.replace('/','\\/').replace('%2F','\\/')}/g' pipeline/email/failed_deploy_body_html.tpl"
-    sh "sed -i 's/{BRANCH_NAME}/${BRANCH_NAME.replace('/','\\/')}/g' pipeline/email/failed_deploy_body_html.tpl"
-    sh "sed -i 's/{BUILD_URL}/${BUILD_URL.replace('/','\\/')}/g' pipeline/email/failed_deploy_body_html.tpl"
-    sh "sed -i 's/{RUN_DISPLAY_URL}/${RUN_DISPLAY_URL.replace('/','\\/')}/g' pipeline/email/failed_deploy_body_html.tpl"
-    sh "sed -i 's/{JENKINS_URL}/${JENKINS_URL.replace('/','\\/')}/g' pipeline/email/failed_deploy_body_html.tpl"
-    sh "sed -i 's/{COMPANY_NAME}/${COMPANY_NAME}/g' pipeline/email/failed_deploy_body_html.tpl"
+    sh "sed -i 's/{APP_NAME}/${APP_NAME}/g' ${emailTemplate}"
+    sh "sed -i 's/{JOB_NAME}/${JOB_NAME.replace('/','\\/').replace('%2F','\\/')}/g' ${emailTemplate}"
+    sh "sed -i 's/{BRANCH_NAME}/${BRANCH_NAME.replace('/','\\/')}/g' ${emailTemplate}"
+    sh "sed -i 's/{BUILD_URL}/${BUILD_URL.replace('/','\\/')}/g' ${emailTemplate}"
+    sh "sed -i 's/{RUN_DISPLAY_URL}/${RUN_DISPLAY_URL.replace('/','\\/')}/g' ${emailTemplate}"
+    sh "sed -i 's/{JENKINS_URL}/${JENKINS_URL.replace('/','\\/')}/g' ${emailTemplate}"
+    sh "sed -i 's/{COMPANY_NAME}/${COMPANY_NAME}/g' ${emailTemplate}"
 
-    // send mail notification
-    MAIL_BODY = '${FILE, path="pipeline/email/failed_deploy_body_html.tpl"}' 
+    // Load mail template
+    mailBody = readFile(file: "${emailTemplate}")
 
+    // Send email notification
     echo 'INFO: Sending email notification'
-    emailext body: MAIL_BODY, 
+    emailext body: "${mailBody}", 
     subject: "Jenkins notification [ Job: ${JOB_NAME.replace('%2F','/')} ] [ Build: ${BUILD_NUMBER} ] [ Status: ${currentBuild.currentResult} ].",
     to: emailextrecipients([culprits()])
+
+
 
     if (SLACK_CHANNEL != "" && SLACK_CREDENTIAL_ID != "" && SLACK_DOMAIN != ""){
         // Slack template replace
         echo 'INFO: Replacing start build slack template tokens'
-        sh "sed -i 's/{APP_NAME}/${APP_NAME}/g' pipeline/slack/failed_deploy.md"
-        sh "sed -i 's/{JOB_NAME}/${JOB_NAME.replace('/','\\/').replace('%2F','\\/')}/g' pipeline/slack/failed_deploy.md"
-        sh "sed -i 's/{BRANCH_NAME}/${BRANCH_NAME.replace('/','\\/')}/g' pipeline/slack/failed_deploy.md"
-        sh "sed -i 's/{BUILD_URL}/${BUILD_URL.replace('/','\\/')}/g' pipeline/slack/failed_deploy.md"
-        sh "sed -i 's/{RUN_DISPLAY_URL}/${RUN_DISPLAY_URL.replace('/','\\/')}/g' pipeline/slack/failed_deploy.md"
-        def slackMsg = readFile(file: 'pipeline/slack/failed_deploy.md')
-        //slack notification
+        sh "sed -i 's/{APP_NAME}/${APP_NAME}/g' ${slackTemplate}"
+        sh "sed -i 's/{JOB_NAME}/${JOB_NAME.replace('/','\\/').replace('%2F','\\/')}/g' ${slackTemplate}"
+        sh "sed -i 's/{BRANCH_NAME}/${BRANCH_NAME.replace('/','\\/')}/g' ${slackTemplate}"
+        sh "sed -i 's/{BUILD_URL}/${BUILD_URL.replace('/','\\/')}/g' ${slackTemplate}"
+        sh "sed -i 's/{RUN_DISPLAY_URL}/${RUN_DISPLAY_URL.replace('/','\\/')}/g' ${slackTemplate}"
+
+        // Load Slack template
+        slackMsg = readFile(file: "${slackTemplate}")
+
+        // Slack notification
         slackSend channel: "${SLACK_CHANNEL}", 
                   tokenCredentialId:"${SLACK_CREDENTIAL_ID}", 
                   teamDomain: "${SLACK_DOMAIN}",
@@ -93,32 +102,43 @@ def sendFailure(){
 
 def sendApproval(){
 
+    // approval templates
+    emailTemplate = "${WORKSPACE}/pipeline/email/approval_body_html.tpl"
+    slackTemplate = "${WORKSPACE}/pipeline/slack/approval_deploy.md"
+
     // body replace
     echo "INFO: Replacing approval email template tokens"
-    sh "sed -i 's/{APP_NAME}/${APP_NAME}/g' pipeline/email/approval_body_html.tpl"
-    sh "sed -i 's/{JOB_NAME}/${JOB_NAME.replace('/','\\/').replace('%2F','\\/')}/g' pipeline/email/approval_body_html.tpl"
-    sh "sed -i 's/{BRANCH_NAME}/${BRANCH_NAME.replace('/','\\/')}/g' pipeline/email/approval_body_html.tpl"
-    sh "sed -i 's/{BUILD_URL}/${BUILD_URL.replace('/','\\/')}/g' pipeline/email/approval_body_html.tpl"
-    sh "sed -i 's/{RUN_DISPLAY_URL}/${RUN_DISPLAY_URL.replace('/','\\/')}/g' pipeline/email/approval_body_html.tpl"
-    sh "sed -i 's/{COMPANY_NAME}/${COMPANY_NAME}/g' pipeline/email/approval_body_html.tpl"
-    sh "sed -i 's/{JENKINS_URL}/${JENKINS_URL.replace('/','\\/')}/g' pipeline/email/approval_body_html.tpl"
+    sh "sed -i 's/{APP_NAME}/${APP_NAME}/g' ${emailTemplate}"
+    sh "sed -i 's/{JOB_NAME}/${JOB_NAME.replace('/','\\/').replace('%2F','\\/')}/g' ${emailTemplate}"
+    sh "sed -i 's/{BRANCH_NAME}/${BRANCH_NAME.replace('/','\\/')}/g' ${emailTemplate}"
+    sh "sed -i 's/{BUILD_URL}/${BUILD_URL.replace('/','\\/')}/g' ${emailTemplate}"
+    sh "sed -i 's/{RUN_DISPLAY_URL}/${RUN_DISPLAY_URL.replace('/','\\/')}/g' ${emailTemplate}"
+    sh "sed -i 's/{COMPANY_NAME}/${COMPANY_NAME}/g' ${emailTemplate}"
+    sh "sed -i 's/{JENKINS_URL}/${JENKINS_URL.replace('/','\\/')}/g' ${emailTemplate}"
                     
-    // send mail notification
-    MAIL_BODY = '${FILE, path="pipeline/email/approval_body_html.tpl"}' 
+    // Load mail template
+    mailBody = readFile(file: "${emailTemplate}")
+
+    // Send email notification
     echo "INFO: Sending email notification"
-    emailext body: MAIL_BODY, 
+    emailext body: "${mailBody}", 
     subject: "Jenkins notification [ Job: ${JOB_NAME.replace('%2F','/')} ] [ Build: ${BUILD_NUMBER} ] is waiting for approval.",
     to: '$DEFAULT_RECIPIENTS'
+
+
 
     if (SLACK_CHANNEL != "" && SLACK_CREDENTIAL_ID != "" && SLACK_DOMAIN != ""){
         // Slack template replace
         echo 'INFO: Replacing approval slack template tokens'
-        sh "sed -i 's/{APP_NAME}/${APP_NAME}/g' pipeline/slack/approval_deploy.md"
-        sh "sed -i 's/{JOB_NAME}/${JOB_NAME.replace('/','\\/').replace('%2F','\\/')}/g' pipeline/slack/approval_deploy.md"
-        sh "sed -i 's/{BRANCH_NAME}/${BRANCH_NAME.replace('/','\\/')}/g' pipeline/slack/approval_deploy.md"
-        sh "sed -i 's/{BUILD_URL}/${BUILD_URL.replace('/','\\/')}/g' pipeline/slack/approval_deploy.md"
-        sh "sed -i 's/{RUN_DISPLAY_URL}/${RUN_DISPLAY_URL.replace('/','\\/')}/g' pipeline/slack/approval_deploy.md"
-        def slackMsg = readFile(file: 'pipeline/slack/approval_deploy.md')
+        sh "sed -i 's/{APP_NAME}/${APP_NAME}/g' ${slackTemplate}"
+        sh "sed -i 's/{JOB_NAME}/${JOB_NAME.replace('/','\\/').replace('%2F','\\/')}/g' ${slackTemplate}"
+        sh "sed -i 's/{BRANCH_NAME}/${BRANCH_NAME.replace('/','\\/')}/g' ${slackTemplate}"
+        sh "sed -i 's/{BUILD_URL}/${BUILD_URL.replace('/','\\/')}/g' ${slackTemplate}"
+        sh "sed -i 's/{RUN_DISPLAY_URL}/${RUN_DISPLAY_URL.replace('/','\\/')}/g' ${slackTemplate}"
+
+        // Load slack template    
+        slackMsg = readFile(file: "${slackTemplate}")
+
         //slack notification
         slackSend channel: "${SLACK_CHANNEL}", 
                   tokenCredentialId:"${SLACK_CREDENTIAL_ID}", 
