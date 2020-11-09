@@ -1,16 +1,18 @@
     
 def sendSuccess() {
+    // success email template
+    emailTemplate = "${env.WORKSPACE}/pipeline/email/successful_deploy_body_html.tpl"
 
     // email body replace
     echo 'INFO: Replacing successful email template tokens'
-    sh "sed -i 's/{APP_NAME}/${APP_NAME}/g' pipeline/email/successful_deploy_body_html.tpl"
-    sh "sed -i 's/{JOB_NAME}/${JOB_NAME.replace('/','\\/').replace('%2F','\\/')}/g' pipeline/email/successful_deploy_body_html.tpl"
-    sh "sed -i 's/{BRANCH_NAME}/${BRANCH_NAME.replace('/','\\/')}/g' pipeline/email/successful_deploy_body_html.tpl"
-    sh "sed -i 's/{BUILD_URL}/${BUILD_URL.replace('/','\\/')}/g' pipeline/email/successful_deploy_body_html.tpl"
-    sh "sed -i 's/{RUN_DISPLAY_URL}/${RUN_DISPLAY_URL.replace('/','\\/')}/g' pipeline/email/successful_deploy_body_html.tpl"
-    sh "sed -i 's/{DURATION_STRING}/${currentBuild.durationString.replace(' and counting', '')}/g' pipeline/email/successful_deploy_body_html.tpl"
-    sh "sed -i 's/{COMPANY_NAME}/${COMPANY_NAME}/g' pipeline/email/successful_deploy_body_html.tpl"
-    sh "sed -i 's/{JENKINS_URL}/${JENKINS_URL.replace('/','\\/')}/g' pipeline/email/successful_deploy_body_html.tpl"
+    sh "sed -i 's/{APP_NAME}/${APP_NAME}/g' ${emailTemplate}"
+    sh "sed -i 's/{JOB_NAME}/${JOB_NAME.replace('/','\\/').replace('%2F','\\/')}/g' ${env.WORKSPACE}/pipeline/${emailTemplate}"
+    sh "sed -i 's/{BRANCH_NAME}/${BRANCH_NAME.replace('/','\\/')}/g' ${emailTemplate}"
+    sh "sed -i 's/{BUILD_URL}/${BUILD_URL.replace('/','\\/')}/g' ${emailTemplate}"
+    sh "sed -i 's/{RUN_DISPLAY_URL}/${RUN_DISPLAY_URL.replace('/','\\/')}/g' ${emailTemplate}"
+    sh "sed -i 's/{DURATION_STRING}/${currentBuild.durationString.replace(' and counting', '')}/g' ${emailTemplate}"
+    sh "sed -i 's/{COMPANY_NAME}/${COMPANY_NAME}/g' ${emailTemplate}"
+    sh "sed -i 's/{JENKINS_URL}/${JENKINS_URL.replace('/','\\/')}/g' ${emailTemplate}"
 
     // send mail notification
     MAIL_BODY = '${FILE, path="pipeline/email/successful_deploy_body_html.tpl"}' 
