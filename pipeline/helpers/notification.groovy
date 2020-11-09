@@ -15,11 +15,13 @@ def sendSuccess() {
     sh "sed -i 's/{COMPANY_NAME}/${COMPANY_NAME}/g' ${emailTemplate}"
     sh "sed -i 's/{JENKINS_URL}/${JENKINS_URL.replace('/','\\/')}/g' ${emailTemplate}"
 
-    // send mail notification
-    MAIL_BODY = '${FILE, path="pipeline/email/successful_deploy_body_html.tpl"}' 
+    // Load mail template
+    //MAIL_BODY = '${FILE, path="pipeline/email/successful_deploy_body_html.tpl"}' 
+    mailBody = readFile(file: "${emailTemplate}")
 
+    // send mail notification
     echo 'INFO: Sending email notification'
-    emailext body: MAIL_BODY, 
+    emailext body: "${mailBody}", 
     subject: "Jenkins notification [ Job: ${JOB_NAME.replace('%2F','/')} ] [ Build: ${BUILD_NUMBER} ] [ Status: ${currentBuild.currentResult} ].",
     to: '$DEFAULT_RECIPIENTS'
 
@@ -34,7 +36,10 @@ def sendSuccess() {
         sh "sed -i 's/{BUILD_URL}/${BUILD_URL.replace('/','\\/')}/g' ${slackTemplate}"
         sh "sed -i 's/{RUN_DISPLAY_URL}/${RUN_DISPLAY_URL.replace('/','\\/')}/g' ${slackTemplate}"
         sh "sed -i 's/{DURATION_STRING}/${currentBuild.durationString.replace(' and counting', '')}/g' ${slackTemplate}"
-        def slackMsg = readFile(file: "${slackTemplate}")
+        
+        // Load template
+        slackMsg = readFile(file: "${slackTemplate}")
+
         //slack notification
         slackSend channel: "${SLACK_CHANNEL}", 
                   tokenCredentialId:"${SLACK_CREDENTIAL_ID}", 
