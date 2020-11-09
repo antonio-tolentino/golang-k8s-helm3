@@ -34,7 +34,7 @@ def sendSuccess() {
         sh "sed -i 's/{BUILD_URL}/${BUILD_URL.replace('/','\\/')}/g' ${slackTemplate}"
         sh "sed -i 's/{RUN_DISPLAY_URL}/${RUN_DISPLAY_URL.replace('/','\\/')}/g' ${slackTemplate}"
         sh "sed -i 's/{DURATION_STRING}/${currentBuild.durationString.replace(' and counting', '')}/g' ${slackTemplate}"
-        def slackMsg = readFile(file: '${slackTemplate}')
+        def slackMsg = readFile(file: "${slackTemplate}")
         //slack notification
         slackSend channel: "${SLACK_CHANNEL}", 
                   tokenCredentialId:"${SLACK_CREDENTIAL_ID}", 
