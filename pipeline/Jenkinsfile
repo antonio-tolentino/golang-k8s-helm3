@@ -54,7 +54,7 @@ pipeline {
             agent {
                 kubernetes {
                     cloud 'local'
-                    yamlFile "${WORKSPACE}/pipeline/agents/golang.yml"
+                    yamlFile "${env.WORKSPACE}/pipeline/agents/golang.yml"
                 }
             } 
             steps{
