@@ -25,7 +25,7 @@ pipeline {
         PROD_ENV = "prd"
 
         // Slack notification
-        // Any empty variable will skip notification
+        // Any empty slack variable will skip notification
         SLACK_CHANNEL = "#jenkins-test"
         SLACK_CREDENTIAL_ID = "Slack"
         SLACK_DOMAIN = "platformbuilders"
@@ -116,7 +116,7 @@ pipeline {
             agent {
                 kubernetes {
                     cloud 'local'
-                    yamlFile 'pipeline/agents/gcpkaniko.yml'
+                    yamlFile 'pipeline/agents/kaniko.yml'
                 }
             } 
             environment{
@@ -127,26 +127,9 @@ pipeline {
                 container('kaniko') {
                     script{
                         
-  
-                        if (BRANCH_NAME == 'develop'){
-
-                            // image repository and tag
-                            REPOSITORY = "${REGISTRY}/${APP_NAME}-${DEVELOP_ENV}:${IMAGE_TAG}"
-
-                        } else if (BRANCH_NAME.contains("release/")){
-
-                            // Split branch name and get semantic version
-                            def delimiterPos = "${BRANCH_NAME}".indexOf('/')
-                            def releaseVersion = "${BRANCH_NAME}".substring( delimiterPos + 1 ).replace('.','-') 
-                            // image repository and tag
-                            REPOSITORY = "${REGISTRY}/${APP_NAME}-${RELEASE_ENV}-${releaseVersion}:${IMAGE_TAG}"
-
-                        } else if (BRANCH_NAME == 'master'){
-
-                            // image repository and tag
-                            REPOSITORY = "${REGISTRY}/${APP_NAME}-${PROD_ENV}:${IMAGE_TAG}"
-
-                        }
+                        // Generate REPOSITORY based on environment and branch
+                        def kanikoHelper = load("${WORKSPACE}/pipeline/helpers/kanikoHelper.groovy")
+                        REPOSITORY = kanikoHelper.generateRepo()
 
                         echo "INFO: Building and pushing container image"
                 
@@ -179,41 +162,10 @@ pipeline {
             }
             steps{
                 script{
-                    // body replace
-                    echo "INFO: Replacing approval email template tokens"
-                    sh "sed -i 's/{APP_NAME}/${APP_NAME}/g' pipeline/email/approval_body_html.tpl"
-                    sh "sed -i 's/{JOB_NAME}/${JOB_NAME.replace('/','\\/').replace('%2F','\\/')}/g' pipeline/email/approval_body_html.tpl"
-                    sh "sed -i 's/{BRANCH_NAME}/${BRANCH_NAME.replace('/','\\/')}/g' pipeline/email/approval_body_html.tpl"
-                    sh "sed -i 's/{BUILD_URL}/${BUILD_URL.replace('/','\\/')}/g' pipeline/email/approval_body_html.tpl"
-                    sh "sed -i 's/{RUN_DISPLAY_URL}/${RUN_DISPLAY_URL.replace('/','\\/')}/g' pipeline/email/approval_body_html.tpl"
-                    sh "sed -i 's/{COMPANY_NAME}/${COMPANY_NAME}/g' pipeline/email/approval_body_html.tpl"
-                    sh "sed -i 's/{JENKINS_URL}/${JENKINS_URL.replace('/','\\/')}/g' pipeline/email/approval_body_html.tpl"
-                    
-                    // send mail notification
-                    MAIL_BODY = '${FILE, path="pipeline/email/approval_body_html.tpl"}' 
-                    echo "INFO: Sending email notification"
-                    emailext body: MAIL_BODY, 
-                    subject: "Jenkins notification [ Job: ${JOB_NAME.replace('%2F','/')} ] [ Build: ${BUILD_NUMBER} ] is waiting for approval.",
-                    to: '$DEFAULT_RECIPIENTS'
+                    echo 'INFO: Send approval notification.'
 
-                    if (SLACK_CHANNEL != "" && SLACK_CREDENTIAL_ID != "" && SLACK_DOMAIN != ""){
-                        // Slack template replace
-                        echo 'INFO: Replacing approval slack template tokens'
-                        sh "sed -i 's/{APP_NAME}/${APP_NAME}/g' pipeline/slack/approval_deploy.md"
-                        sh "sed -i 's/{JOB_NAME}/${JOB_NAME.replace('/','\\/').replace('%2F','\\/')}/g' pipeline/slack/approval_deploy.md"
-                        sh "sed -i 's/{BRANCH_NAME}/${BRANCH_NAME.replace('/','\\/')}/g' pipeline/slack/approval_deploy.md"
-                        sh "sed -i 's/{BUILD_URL}/${BUILD_URL.replace('/','\\/')}/g' pipeline/slack/approval_deploy.md"
-                        sh "sed -i 's/{RUN_DISPLAY_URL}/${RUN_DISPLAY_URL.replace('/','\\/')}/g' pipeline/slack/approval_deploy.md"
-                        def slackMsg = readFile(file: 'pipeline/slack/approval_deploy.md')
-
-                        //slack notification
-                        slackSend channel: "${SLACK_CHANNEL}", 
-                                  tokenCredentialId:"${SLACK_CREDENTIAL_ID}", 
-                                  teamDomain: "${SLACK_DOMAIN}",
-                                  botUser: true,
-                                  color: "warning",
-                                  message: "${slackMsg}"
-                    }
+                    def notificationHelper = load("${WORKSPACE}/pipeline/helpers/notificationHelper.groovy")
+                    notificationHelper.sendApproval()
 
                 }
             }            
@@ -264,7 +216,7 @@ pipeline {
             //agent {
             //    kubernetes {
             //        cloud 'local'
-            //        yamlFile 'pipeline/agents/gcpdeploy.yml'
+            //        yamlFile 'pipeline/agents/pbdeploy.yml'
             //    }
             //}  
             // USE ONLY IF IMAGE REPOSITORY HAS TO BE FLEXIBLE
@@ -276,13 +228,13 @@ pipeline {
                          kind: Pod
                          metadata:
                            labels:
-                             app: gcpdeploy
+                             app: pbdeploy
                            namespace: jenkins
                          spec:
                            serviceAccount: jenkins
                            containers:
-                           - name: gcpdeploy
-                             image: ${REGISTRY}/gcpdeploy:v0.3.0
+                           - name: pbdeploy
+                             image: ${REGISTRY}/pbdeploy:v0.3.0
                              env:
                                - name: GOOGLE_APPLICATION_CREDENTIALS
                                  value: /secret/jenkins-gcp-credentials.json  
@@ -291,12 +243,12 @@ pipeline {
                              - cat
                              tty: true
                              volumeMounts:
-                               - name: kaniko-gcp-secret
+                               - name: jenkins-gcp-credentials
                                  mountPath: /secret                               
                            volumes:
-                             - name: kaniko-gcp-secret
+                             - name: jenkins-gcp-credentials
                                secret:
-                                 secretName: kaniko-gcp-credentials-secret                                 
+                                 secretName: jenkins-gcp-credentials                              
                          """
                 }
             }              
@@ -305,45 +257,20 @@ pipeline {
                 IMAGE_TAG = GIT_COMMIT.take(7)
             }                      
             steps{
-                container('gcpdeploy'){
+                container('pbdeploy'){
                     script{
+                        // Generate ENV_NAME, HELM_NAME, REPOSITORY, NAMESPACE based on defined environment variables
+                        def pbdeployHelper = load("${WORKSPACE}/pipeline/helpers/pbdeployHelper.groovy")
+                        (ENV_NAME, HELM_NAME, REPOSITORY, NAMESPACE) = pbdeployHelper.genDeployInfo()
 
-                        if (BRANCH_NAME == 'develop'){
-
-                            ENV_NAME = DEVELOP_ENV
-                            HELM_NAME = "${APP_NAME}-${DEVELOP_ENV}"
-                            NAMESPACE = DEVELOP_NAMESPACE
-                            // image repository
-                            REPOSITORY = "${REGISTRY}/${APP_NAME}-${DEVELOP_ENV}"
-
-                        } else if (BRANCH_NAME.contains("release/")){
-                            // Split branch name and get semantic version
-                            def delimiterPos = "${BRANCH_NAME}".indexOf('/')
-                            def releaseVersion = "${BRANCH_NAME}".substring( delimiterPos + 1 ).replace('.','-') 
-
-                            ENV_NAME = RELEASE_ENV
-                            HELM_NAME = "${APP_NAME}-${RELEASE_ENV}-${releaseVersion}"
-                            NAMESPACE = RELEASE_NAMESPACE
-                            // image repository
-                            REPOSITORY = "${REGISTRY}/${APP_NAME}-${RELEASE_ENV}-${releaseVersion}"
-
-                        } else if (BRANCH_NAME == 'master'){
-
-                            ENV_NAME = PROD_ENV
-                            HELM_NAME = "${APP_NAME}-${PROD_ENV}"
-                            // image repository 
-                            REPOSITORY = "${REGISTRY}/${APP_NAME}-${PROD_ENV}"
-                            NAMESPACE = PROD_NAMESPACE
-                        }
 
                         // inject secrets from GCP Secret Manager
+                        echo "INFO: Inject secrets from GCP Secret Manager to Helm secret template"
                         sh """  gcpsecrets --project=${GCP_PROJECT} \
                                 --gcp-secret-name=${GCP_SECRET}\
                                 --create-new-secret-file=no \
                                 --kube-secret-file=pipeline/helm3/appchart/templates/secrets.yaml
                            """ 
-
-                        sh "cat pipeline/helm3/appchart/templates/secrets.yaml"   
 
                         // helm 3 
                         echo "INFO: Deploy helm templates"
@@ -355,7 +282,8 @@ pipeline {
                                --set image.tag=${IMAGE_TAG} \
                                --set nameOverride=${APP_NAME} \
                                -f pipeline/helm3/appchart/values-${ENV_NAME}.yaml \
-                               pipeline/helm3/appchart """
+                               pipeline/helm3/appchart 
+                           """
 
                         echo "INFO: List Helm details"
                         sh "helm list -f ${HELM_NAME} -n ${NAMESPACE}" 
@@ -380,87 +308,20 @@ pipeline {
                 script{
                     echo 'INFO: Pipeline finished successifully!'
 
-                    // email body replace
-                    echo 'INFO: Replacing successful email template tokens'
-                    sh "sed -i 's/{APP_NAME}/${APP_NAME}/g' pipeline/email/successful_deploy_body_html.tpl"
-                    sh "sed -i 's/{JOB_NAME}/${JOB_NAME.replace('/','\\/').replace('%2F','\\/')}/g' pipeline/email/successful_deploy_body_html.tpl"
-                    sh "sed -i 's/{BRANCH_NAME}/${BRANCH_NAME.replace('/','\\/')}/g' pipeline/email/successful_deploy_body_html.tpl"
-                    sh "sed -i 's/{BUILD_URL}/${BUILD_URL.replace('/','\\/')}/g' pipeline/email/successful_deploy_body_html.tpl"
-                    sh "sed -i 's/{RUN_DISPLAY_URL}/${RUN_DISPLAY_URL.replace('/','\\/')}/g' pipeline/email/successful_deploy_body_html.tpl"
-                    sh "sed -i 's/{DURATION_STRING}/${currentBuild.durationString.replace(' and counting', '')}/g' pipeline/email/successful_deploy_body_html.tpl"
-                    sh "sed -i 's/{COMPANY_NAME}/${COMPANY_NAME}/g' pipeline/email/successful_deploy_body_html.tpl"
-                    sh "sed -i 's/{JENKINS_URL}/${JENKINS_URL.replace('/','\\/')}/g' pipeline/email/successful_deploy_body_html.tpl"
+                    def notificationHelper = load("${WORKSPACE}/pipeline/helpers/notificationHelper.groovy")
+                    notificationHelper.sendSuccess()
 
-                    // send mail notification
-                    MAIL_BODY = '${FILE, path="pipeline/email/successful_deploy_body_html.tpl"}' 
-                    
-                    echo 'INFO: Sending email notification'
-                    emailext body: MAIL_BODY, 
-                    subject: "Jenkins notification [ Job: ${JOB_NAME.replace('%2F','/')} ] [ Build: ${BUILD_NUMBER} ] [ Status: ${currentBuild.currentResult} ].",
-                    to: '$DEFAULT_RECIPIENTS'
-
-                    if (SLACK_CHANNEL != "" && SLACK_CREDENTIAL_ID != "" && SLACK_DOMAIN != ""){
-                        // Slack template replace
-                        echo 'INFO: Replacing start build slack template tokens'
-                        sh "sed -i 's/{APP_NAME}/${APP_NAME}/g' pipeline/slack/successful_deploy.md"
-                        sh "sed -i 's/{JOB_NAME}/${JOB_NAME.replace('/','\\/').replace('%2F','\\/')}/g' pipeline/slack/successful_deploy.md"
-                        sh "sed -i 's/{BRANCH_NAME}/${BRANCH_NAME.replace('/','\\/')}/g' pipeline/slack/successful_deploy.md"
-                        sh "sed -i 's/{BUILD_URL}/${BUILD_URL.replace('/','\\/')}/g' pipeline/slack/successful_deploy.md"
-                        sh "sed -i 's/{RUN_DISPLAY_URL}/${RUN_DISPLAY_URL.replace('/','\\/')}/g' pipeline/slack/successful_deploy.md"
-                        sh "sed -i 's/{DURATION_STRING}/${currentBuild.durationString.replace(' and counting', '')}/g' pipeline/slack/successful_deploy.md"
-                        def slackMsg = readFile(file: 'pipeline/slack/successful_deploy.md')
-
-                        //slack notification
-                        slackSend channel: "${SLACK_CHANNEL}", 
-                                  tokenCredentialId:"${SLACK_CREDENTIAL_ID}", 
-                                  teamDomain: "${SLACK_DOMAIN}",
-                                  botUser: true,
-                                  color: "good",
-                                  message: "${slackMsg}"
-                    }
                 }
             }            
         }
         failure {
             node('linux') {
                 script{
-                    echo 'INFO: Pipeline finished with failure!'
-                    // body replace
-                    echo 'INFO: Replacing fail email template tokens'
-                    sh "sed -i 's/{APP_NAME}/${APP_NAME}/g' pipeline/email/failed_deploy_body_html.tpl"
-                    sh "sed -i 's/{JOB_NAME}/${JOB_NAME.replace('/','\\/').replace('%2F','\\/')}/g' pipeline/email/failed_deploy_body_html.tpl"
-                    sh "sed -i 's/{BRANCH_NAME}/${BRANCH_NAME.replace('/','\\/')}/g' pipeline/email/failed_deploy_body_html.tpl"
-                    sh "sed -i 's/{BUILD_URL}/${BUILD_URL.replace('/','\\/')}/g' pipeline/email/failed_deploy_body_html.tpl"
-                    sh "sed -i 's/{RUN_DISPLAY_URL}/${RUN_DISPLAY_URL.replace('/','\\/')}/g' pipeline/email/failed_deploy_body_html.tpl"
-                    sh "sed -i 's/{JENKINS_URL}/${JENKINS_URL.replace('/','\\/')}/g' pipeline/email/failed_deploy_body_html.tpl"
-                    sh "sed -i 's/{COMPANY_NAME}/${COMPANY_NAME}/g' pipeline/email/failed_deploy_body_html.tpl"
+                    echo 'Error: Pipeline finished with failure!'
 
-                    // send mail notification
-                    MAIL_BODY = '${FILE, path="pipeline/email/failed_deploy_body_html.tpl"}' 
+                    def notificationHelper = load("${WORKSPACE}/pipeline/helpers/notificationHelper.groovy")
+                    notificationHelper.sendFailure()
 
-                    echo 'INFO: Sending email notification'
-                    emailext body: MAIL_BODY, 
-                    subject: "Jenkins notification [ Job: ${JOB_NAME.replace('%2F','/')} ] [ Build: ${BUILD_NUMBER} ] [ Status: ${currentBuild.currentResult} ].",
-                    to: emailextrecipients([culprits()])
-
-                    if (SLACK_CHANNEL != "" && SLACK_CREDENTIAL_ID != "" && SLACK_DOMAIN != ""){
-                        // Slack template replace
-                        echo 'INFO: Replacing start build slack template tokens'
-                        sh "sed -i 's/{APP_NAME}/${APP_NAME}/g' pipeline/slack/failed_deploy.md"
-                        sh "sed -i 's/{JOB_NAME}/${JOB_NAME.replace('/','\\/').replace('%2F','\\/')}/g' pipeline/slack/failed_deploy.md"
-                        sh "sed -i 's/{BRANCH_NAME}/${BRANCH_NAME.replace('/','\\/')}/g' pipeline/slack/failed_deploy.md"
-                        sh "sed -i 's/{BUILD_URL}/${BUILD_URL.replace('/','\\/')}/g' pipeline/slack/failed_deploy.md"
-                        sh "sed -i 's/{RUN_DISPLAY_URL}/${RUN_DISPLAY_URL.replace('/','\\/')}/g' pipeline/slack/failed_deploy.md"
-                        def slackMsg = readFile(file: 'pipeline/slack/failed_deploy.md')
-
-                        //slack notification
-                        slackSend channel: "${SLACK_CHANNEL}", 
-                                  tokenCredentialId:"${SLACK_CREDENTIAL_ID}", 
-                                  teamDomain: "${SLACK_DOMAIN}",
-                                  botUser: true,
-                                  color: "danger",
-                                  message: "${slackMsg}"
-                    }
                 }
             }            
         }

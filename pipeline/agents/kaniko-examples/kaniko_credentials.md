@@ -1,13 +1,17 @@
 # Kaniko Container Registry Credentials
 
 ## Google container Registry (GCR)
-In GCP console create a Service account, add Storage Admin role and generate json key file.
+In GCP console create a Service account with permissions bellow:
+* Storage Admin role 
+* Secret Manager Secret Accessor
+
+After Service Account creation, generate json key file.
 
 ## Create Kubernetes Secret with Json credentials
 Rename json service account file to "jenkins-gcp-credentials.json" and apply command below:
 
 ```bash
-kubectl create secret generic kaniko-gcp-credentials-secret --from-file=./jenkins-gcp-credentials.json
+kubectl create secret generic jenkins-gcp-credentials --from-file=./jenkins-gcp-credentials.json
 ```
 
 ## Elastic Container Registry (ECR) and Docker Hub
