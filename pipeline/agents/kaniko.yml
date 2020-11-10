@@ -18,12 +18,12 @@ spec:
     volumeMounts:
     - mountPath: /workspace/cache
       name: jenkins-kaniko-image-cache      
-    - name: kaniko-gcp-secret
+    - name: jenkins-gcp-credentials
       mountPath: /secret      
   volumes:
     - name: jenkins-kaniko-image-cache
       persistentVolumeClaim:
         claimName: jenkins-kaniko-image-cache    
-    - name: kaniko-gcp-secret
+    - name: jenkins-gcp-credentials
       secret:
-        secretName: kaniko-gcp-credentials-secret        
+        secretName: jenkins-gcp-credentials       

@@ -116,7 +116,7 @@ pipeline {
             agent {
                 kubernetes {
                     cloud 'local'
-                    yamlFile 'pipeline/agents/gcpkaniko.yml'
+                    yamlFile 'pipeline/agents/kaniko.yml'
                 }
             } 
             environment{
@@ -127,6 +127,7 @@ pipeline {
                 container('kaniko') {
                     script{
                         
+                        // compose repository based on environment and branch
                         def kanikoHelper = load("${WORKSPACE}/pipeline/helpers/kanikoHelper.groovy")
                         REPOSITORY = kanikoHelper.generateRepo()
 
@@ -215,7 +216,7 @@ pipeline {
             //agent {
             //    kubernetes {
             //        cloud 'local'
-            //        yamlFile 'pipeline/agents/gcpdeploy.yml'
+            //        yamlFile 'pipeline/agents/pbdeploy.yml'
             //    }
             //}  
             // USE ONLY IF IMAGE REPOSITORY HAS TO BE FLEXIBLE
@@ -227,13 +228,13 @@ pipeline {
                          kind: Pod
                          metadata:
                            labels:
-                             app: gcpdeploy
+                             app: pbdeploy
                            namespace: jenkins
                          spec:
                            serviceAccount: jenkins
                            containers:
-                           - name: gcpdeploy
-                             image: ${REGISTRY}/gcpdeploy:v0.3.0
+                           - name:pbdeploy
+                             image: ${REGISTRY}/pbdeploy:v0.3.0
                              env:
                                - name: GOOGLE_APPLICATION_CREDENTIALS
                                  value: /secret/jenkins-gcp-credentials.json  
@@ -256,7 +257,7 @@ pipeline {
                 IMAGE_TAG = GIT_COMMIT.take(7)
             }                      
             steps{
-                container('gcpdeploy'){
+                container('pbdeploy'){
                     script{
 
                         if (BRANCH_NAME == 'develop'){
@@ -293,8 +294,6 @@ pipeline {
                                 --create-new-secret-file=no \
                                 --kube-secret-file=pipeline/helm3/appchart/templates/secrets.yaml
                            """ 
-
-                        sh "cat pipeline/helm3/appchart/templates/secrets.yaml"   
 
                         // helm 3 
                         echo "INFO: Deploy helm templates"
