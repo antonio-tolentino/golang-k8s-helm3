@@ -31,7 +31,7 @@ def genDeployInfo(){
 
 
 
-    return return [ENV_NAME, HELM_NAME, REPOSITORY, NAMESPACE]
+    return [ENV_NAME, HELM_NAME, REPOSITORY, NAMESPACE]
 }
 
 return this
