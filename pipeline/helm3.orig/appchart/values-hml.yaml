@@ -48,30 +48,23 @@ ingress:
     # cert-manager.io/issuer: "nameOfIssuer"
     # cert-manager.io/cluster-issuer: "nameOfClusterIssuer"
   hosts: 
-    - host: books.mydomain.com.br
+    - host: books-hml.mydomain.com.br
       paths: 
         - /     
   tls: []
   #  - secretName: mydomain-tls
   #    hosts:
-  #      - books.mydomain.com.br
+  #      - books-hml.mydomain.com.br
 
 ## istion service mesh
 istio:
   enabled: false
   redirect: true
   hosts: 
-    - host: books.mydomain.com.br
+    - host: books-hml.mydomain.com.br
   paths: 
     - /api/v1
     - /swagger
-  certManager:
-    enabled: false
-    issuer:
-      name: letsencrypt-prod
-      kind: ClusterIssuer
-    dnsNames: 
-      - name: books.mydomain.com.br
   tls: 
     enabled: true
     ## localCert = true secret with certificate and private key must be defined in credentialName

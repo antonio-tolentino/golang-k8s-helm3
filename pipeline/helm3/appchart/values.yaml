@@ -56,14 +56,23 @@ ingress:
   #    hosts:
   #      - chart-example.local
 
-## istion service mesh
+## istio service mesh
 istio:
-  enabled: false
+  enabled: true
   redirect: true
-  hosts: []
-    #- host: chart-example.local
+  hosts: 
+    - host: chart-example.local
+    - host: chart-example1.local
   paths: []
     #- /
+  certManager:
+    enabled: true
+    issuer:
+      name: letsencrypt-prod
+      kind: ClusterIssuer
+    dnsNames: 
+      - name: chart-example.local
+      - name: chart-example1.local
   tls: 
     enabled: true
     ## localCert = true secret with certificate and private key must be defined in credentialName

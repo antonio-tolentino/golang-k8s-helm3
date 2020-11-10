@@ -1,0 +1,18 @@
+{{- if .Values.istio.certManager.enabled }}
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ include "appchart.fullname" . }}
+  labels:
+    {{- include "appchart.labels" . | nindent 4 }}
+  namespace: istio-system
+spec:
+  secretName: {{ .Values.istio.tls.credentialName }}
+  issuerRef:
+    name: {{ .Values.istio.certManager.issuer.name }}
+    kind: {{ .Values.istio.certManager.issuer.kind }}
+  dnsNames:
+  {{- range .Values.istio.certManager.dnsNames }}
+  - {{ .name | quote }}
+  {{- end }}
+{{- end }}

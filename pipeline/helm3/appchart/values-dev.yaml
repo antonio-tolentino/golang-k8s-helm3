@@ -58,13 +58,20 @@ ingress:
 
 ## istion service mesh
 istio:
-  enabled: false
+  enabled: true
   redirect: true
   hosts: 
     - host: books-dev.mydomain.com.br
   paths: 
     - /api/v1
     - /swagger
+  certManager:
+    enabled: true
+    issuer:
+      name: letsencrypt-prod
+      kind: ClusterIssuer
+    dnsNames: 
+      - name: books-dev.mydomain.com.br
   tls: 
     enabled: true
     ## localCert = true secret with certificate and private key must be defined in credentialName
