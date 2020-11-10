@@ -264,7 +264,7 @@ pipeline {
             //agent {
             //    kubernetes {
             //        cloud 'local'
-            //        yamlFile 'pipeline/agents/gcpdeploy.yml'
+            //        yamlFile 'pipeline/agents/pbdeploy.yml'
             //    }
             //}  
             // USE ONLY IF IMAGE REPOSITORY HAS TO BE FLEXIBLE
@@ -276,13 +276,13 @@ pipeline {
                          kind: Pod
                          metadata:
                            labels:
-                             app: gcpdeploy
+                             app: pbdeploy
                            namespace: jenkins
                          spec:
                            serviceAccount: jenkins
                            containers:
-                           - name: gcpdeploy
-                             image: ${REGISTRY}/gcpdeploy:v0.3.0
+                           - name: pbdeploy
+                             image: ${REGISTRY}/pbdeploy:v0.3.0
                              env:
                                - name: GOOGLE_APPLICATION_CREDENTIALS
                                  value: /secret/jenkins-gcp-credentials.json  
@@ -305,7 +305,7 @@ pipeline {
                 IMAGE_TAG = GIT_COMMIT.take(7)
             }                      
             steps{
-                container('gcpdeploy'){
+                container('pbdeploy'){
                     script{
 
                         if (BRANCH_NAME == 'develop'){

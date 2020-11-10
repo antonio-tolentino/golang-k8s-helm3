@@ -2,13 +2,13 @@ apiVersion: v1
 kind: Pod
 metadata:
   labels:
-    app: gcpdeploy
+    app: pbdeploy
   namespace: jenkins
 spec:
   serviceAccount: jenkins
   containers:
-  - name: gcpdeploy
-    image: gcr.io/arquitetura-207620/gcpdeploy:v0.3.0
+  - name: pbdeploy
+    image: gcr.io/arquitetura-207620/pbdeploy:v0.3.0
     env:
       - name: GOOGLE_APPLICATION_CREDENTIALS
         value: /secret/jenkins-gcp-credentials.json       
@@ -17,9 +17,9 @@ spec:
     - cat
     tty: true
     volumeMounts:
-    - name: kaniko-gcp-secret
+    - name: jenkins-gcp-credentials
       mountPath: /secret      
   volumes:
-    - name: kaniko-gcp-secret
+    - name: jenkins-gcp-credentials
       secret:
-        secretName: kaniko-gcp-credentials-secret         
+        secretName: jenkins-gcp-credentials         

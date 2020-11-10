@@ -116,7 +116,7 @@ pipeline {
             agent {
                 kubernetes {
                     cloud 'local'
-                    yamlFile 'pipeline/agents/gcpkaniko.yml'
+                    yamlFile 'pipeline/agents/kaniko.yml'
                 }
             } 
             environment{
@@ -127,26 +127,9 @@ pipeline {
                 container('kaniko') {
                     script{
                         
-  
-                        if (BRANCH_NAME == 'develop'){
-
-                            // image repository and tag
-                            REPOSITORY = "${REGISTRY}/${APP_NAME}-${DEVELOP_ENV}:${IMAGE_TAG}"
-
-                        } else if (BRANCH_NAME.contains("release/")){
-
-                            // Split branch name and get semantic version
-                            def delimiterPos = "${BRANCH_NAME}".indexOf('/')
-                            def releaseVersion = "${BRANCH_NAME}".substring( delimiterPos + 1 ).replace('.','-') 
-                            // image repository and tag
-                            REPOSITORY = "${REGISTRY}/${APP_NAME}-${RELEASE_ENV}-${releaseVersion}:${IMAGE_TAG}"
-
-                        } else if (BRANCH_NAME == 'master'){
-
-                            // image repository and tag
-                            REPOSITORY = "${REGISTRY}/${APP_NAME}-${PROD_ENV}:${IMAGE_TAG}"
-
-                        }
+                        // Generate REPOSITORY based on environment and branch
+                        def kanikoHelper = load("${WORKSPACE}/pipeline/helpers/kanikoHelper.groovy")
+                        REPOSITORY = kanikoHelper.generateRepo()
 
                         echo "INFO: Building and pushing container image"
                 
@@ -181,8 +164,8 @@ pipeline {
                 script{
                     echo 'INFO: Send approval notification.'
 
-                    def notification = load("${env.WORKSPACE}/pipeline/helpers/notification.groovy")
-                    notification.sendApproval()
+                    def notificationHelper = load("${WORKSPACE}/pipeline/helpers/notificationHelper.groovy")
+                    notificationHelper.sendApproval()
 
                 }
             }            
@@ -233,7 +216,7 @@ pipeline {
             //agent {
             //    kubernetes {
             //        cloud 'local'
-            //        yamlFile 'pipeline/agents/gcpdeploy.yml'
+            //        yamlFile 'pipeline/agents/pbdeploy.yml'
             //    }
             //}  
             // USE ONLY IF IMAGE REPOSITORY HAS TO BE FLEXIBLE
@@ -245,13 +228,13 @@ pipeline {
                          kind: Pod
                          metadata:
                            labels:
-                             app: gcpdeploy
+                             app: pbdeploy
                            namespace: jenkins
                          spec:
                            serviceAccount: jenkins
                            containers:
-                           - name: gcpdeploy
-                             image: ${REGISTRY}/gcpdeploy:v0.3.0
+                           - name: pbdeploy
+                             image: ${REGISTRY}/pbdeploy:v0.3.0
                              env:
                                - name: GOOGLE_APPLICATION_CREDENTIALS
                                  value: /secret/jenkins-gcp-credentials.json  
@@ -260,12 +243,12 @@ pipeline {
                              - cat
                              tty: true
                              volumeMounts:
-                               - name: kaniko-gcp-secret
+                               - name: jenkins-gcp-credentials
                                  mountPath: /secret                               
                            volumes:
-                             - name: kaniko-gcp-secret
+                             - name: jenkins-gcp-credentials
                                secret:
-                                 secretName: kaniko-gcp-credentials-secret                                 
+                                 secretName: jenkins-gcp-credentials                              
                          """
                 }
             }              
@@ -274,45 +257,20 @@ pipeline {
                 IMAGE_TAG = GIT_COMMIT.take(7)
             }                      
             steps{
-                container('gcpdeploy'){
+                container('pbdeploy'){
                     script{
+                        // Generate ENV_NAME, HELM_NAME, REPOSITORY, NAMESPACE based on defined environment variables
+                        def pbdeployHelper = load("${WORKSPACE}/pipeline/helpers/pbdeployHelper.groovy")
+                        (ENV_NAME, HELM_NAME, REPOSITORY, NAMESPACE) = pbdeployHelper.genDeployInfo()
 
-                        if (BRANCH_NAME == 'develop'){
-
-                            ENV_NAME = DEVELOP_ENV
-                            HELM_NAME = "${APP_NAME}-${DEVELOP_ENV}"
-                            NAMESPACE = DEVELOP_NAMESPACE
-                            // image repository
-                            REPOSITORY = "${REGISTRY}/${APP_NAME}-${DEVELOP_ENV}"
-
-                        } else if (BRANCH_NAME.contains("release/")){
-                            // Split branch name and get semantic version
-                            def delimiterPos = "${BRANCH_NAME}".indexOf('/')
-                            def releaseVersion = "${BRANCH_NAME}".substring( delimiterPos + 1 ).replace('.','-') 
-
-                            ENV_NAME = RELEASE_ENV
-                            HELM_NAME = "${APP_NAME}-${RELEASE_ENV}-${releaseVersion}"
-                            NAMESPACE = RELEASE_NAMESPACE
-                            // image repository
-                            REPOSITORY = "${REGISTRY}/${APP_NAME}-${RELEASE_ENV}-${releaseVersion}"
-
-                        } else if (BRANCH_NAME == 'master'){
-
-                            ENV_NAME = PROD_ENV
-                            HELM_NAME = "${APP_NAME}-${PROD_ENV}"
-                            // image repository 
-                            REPOSITORY = "${REGISTRY}/${APP_NAME}-${PROD_ENV}"
-                            NAMESPACE = PROD_NAMESPACE
-                        }
 
                         // inject secrets from GCP Secret Manager
+                        echo "INFO: Inject secrets from GCP Secret Manager to Helm secret template"
                         sh """  gcpsecrets --project=${GCP_PROJECT} \
                                 --gcp-secret-name=${GCP_SECRET}\
                                 --create-new-secret-file=no \
                                 --kube-secret-file=pipeline/helm3/appchart/templates/secrets.yaml
                            """ 
-
-                        sh "cat pipeline/helm3/appchart/templates/secrets.yaml"   
 
                         // helm 3 
                         echo "INFO: Deploy helm templates"
@@ -324,7 +282,8 @@ pipeline {
                                --set image.tag=${IMAGE_TAG} \
                                --set nameOverride=${APP_NAME} \
                                -f pipeline/helm3/appchart/values-${ENV_NAME}.yaml \
-                               pipeline/helm3/appchart """
+                               pipeline/helm3/appchart 
+                           """
 
                         echo "INFO: List Helm details"
                         sh "helm list -f ${HELM_NAME} -n ${NAMESPACE}" 
@@ -349,8 +308,8 @@ pipeline {
                 script{
                     echo 'INFO: Pipeline finished successifully!'
 
-                    def notification = load("${env.WORKSPACE}/pipeline/helpers/notification.groovy")
-                    notification.sendSuccess()
+                    def notificationHelper = load("${WORKSPACE}/pipeline/helpers/notificationHelper.groovy")
+                    notificationHelper.sendSuccess()
 
                 }
             }            
@@ -360,8 +319,8 @@ pipeline {
                 script{
                     echo 'Error: Pipeline finished with failure!'
 
-                    def notification = load("${env.WORKSPACE}/pipeline/helpers/notification.groovy")
-                    notification.sendFailure()
+                    def notificationHelper = load("${WORKSPACE}/pipeline/helpers/notificationHelper.groovy")
+                    notificationHelper.sendFailure()
 
                 }
             }            

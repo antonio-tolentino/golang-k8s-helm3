@@ -120,7 +120,7 @@ def sendApproval(){
     mailBody = readFile(file: "${emailTemplate}")
 
     // Send email notification
-    echo "INFO: Sending email notification"
+    echo "INFO: Sending approval email notification"
     emailext body: "${mailBody}", 
     subject: "Jenkins notification [ Job: ${JOB_NAME.replace('%2F','/')} ] [ Build: ${BUILD_NUMBER} ] is waiting for approval.",
     to: '$DEFAULT_RECIPIENTS'
