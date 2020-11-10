@@ -127,7 +127,7 @@ pipeline {
                 container('kaniko') {
                     script{
                         
-                        // compose repository based on environment and branch
+                        // Generate REPOSITORY based on environment and branch
                         def kanikoHelper = load("${WORKSPACE}/pipeline/helpers/kanikoHelper.groovy")
                         REPOSITORY = kanikoHelper.generateRepo()
 
@@ -259,7 +259,7 @@ pipeline {
             steps{
                 container('pbdeploy'){
                     script{
-                        // Generate deploy information based on defined environment variables
+                        // Generate ENV_NAME, HELM_NAME, REPOSITORY, NAMESPACE based on defined environment variables
                         def pbdeployHelper = load("${WORKSPACE}/pipeline/helpers/pbdeployHelper.groovy")
                         //println("******** deploy info = " + pbdeployHelper.genDeployInfo())
                         (ENV_NAME, HELM_NAME, REPOSITORY, NAMESPACE) = pbdeployHelper.genDeployInfo()
