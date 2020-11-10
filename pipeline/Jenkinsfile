@@ -7,7 +7,7 @@ pipeline {
         APP_NAME = "books"
         COMPANY_NAME = "Acme Corporation"
 
-        // GCP
+        // GCP Secret Manager
         GCP_PROJECT = "arquitetura-207620"
         GCP_SECRET = "books-secrets"
         
@@ -264,7 +264,7 @@ pipeline {
                         (ENV_NAME, HELM_NAME, REPOSITORY, NAMESPACE) = pbdeployHelper.genDeployInfo()
 
 
-                        // inject secrets from GCP Secret Manager
+                        // Inject secrets from GCP Secret Manager
                         echo "INFO: Inject secrets from GCP Secret Manager to Helm secret template"
                         sh """  gcpsecrets --project=${GCP_PROJECT} \
                                 --gcp-secret-name=${GCP_SECRET}\

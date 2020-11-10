@@ -30,37 +30,8 @@ Example of external file agent declaration:
 agent {
     kubernetes {
         cloud 'local'
-        label "deploy-gcp-agent-${BUILD_NUMBER}"
-        yamlFile 'pipeline/agents/deploy-gcp.yml'
+        yamlFile 'pipeline/agents/pbdeploy.yml'
     }
 }  
-```
-
-Example of inline agent declaration:
-This approach is recommended if you need to dynamically generate yaml's tags.
-
-```groovy 
-agent {
-    kubernetes {
-        cloud 'local'
-        yaml """
-             apiVersion: v1
-             kind: Pod
-             metadata:
-               labels:
-                 sidecar: deploy-gcp
-               namespace: jenkins
-             spec:
-               serviceAccount: jenkins
-               containers:
-               - name: deploy-gcp
-                 image: ${REGISTRY}/deploy-gcp:v1.1.0
-                 #imagePullPolicy: Always
-                 command:
-                 - cat
-                 tty: true
-             """
-    }
-} 
 ```
 
