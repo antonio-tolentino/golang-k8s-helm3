@@ -243,12 +243,12 @@ pipeline {
                              - cat
                              tty: true
                              volumeMounts:
-                               - name: kaniko-gcp-secret
+                               - name: jenkins-gcp-credentials
                                  mountPath: /secret                               
                            volumes:
-                             - name: kaniko-gcp-secret
+                             - name: jenkins-gcp-credentials
                                secret:
-                                 secretName: kaniko-gcp-credentials-secret                                 
+                                 secretName: jenkins-gcp-credentials                                 
                          """
                 }
             }              
