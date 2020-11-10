@@ -261,7 +261,6 @@ pipeline {
                     script{
                         // Generate ENV_NAME, HELM_NAME, REPOSITORY, NAMESPACE based on defined environment variables
                         def pbdeployHelper = load("${WORKSPACE}/pipeline/helpers/pbdeployHelper.groovy")
-                        //println("******** deploy info = " + pbdeployHelper.genDeployInfo())
                         (ENV_NAME, HELM_NAME, REPOSITORY, NAMESPACE) = pbdeployHelper.genDeployInfo()
 
 
@@ -282,7 +281,8 @@ pipeline {
                                --set image.tag=${IMAGE_TAG} \
                                --set nameOverride=${APP_NAME} \
                                -f pipeline/helm3/appchart/values-${ENV_NAME}.yaml \
-                               pipeline/helm3/appchart """
+                               pipeline/helm3/appchart 
+                           """
 
                         echo "INFO: List Helm details"
                         sh "helm list -f ${HELM_NAME} -n ${NAMESPACE}" 
