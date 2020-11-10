@@ -58,7 +58,7 @@ ingress:
 
 ## istio service mesh
 istio:
-  enabled: true
+  enabled: false
   redirect: true
   hosts: 
     - host: chart-example.local
@@ -66,7 +66,7 @@ istio:
   paths: []
     #- /
   certManager:
-    enabled: true
+    enabled: false
     issuer:
       name: letsencrypt-prod
       kind: ClusterIssuer
