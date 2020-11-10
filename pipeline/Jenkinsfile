@@ -233,7 +233,7 @@ pipeline {
                          spec:
                            serviceAccount: jenkins
                            containers:
-                           - name:pbdeploy
+                           - name: pbdeploy
                              image: ${REGISTRY}/pbdeploy:v0.3.0
                              env:
                                - name: GOOGLE_APPLICATION_CREDENTIALS
@@ -248,7 +248,7 @@ pipeline {
                            volumes:
                              - name: jenkins-gcp-credentials
                                secret:
-                                 secretName: jenkins-gcp-credentials                                 
+                                 secretName: jenkins-gcp-credentials                              
                          """
                 }
             }              
