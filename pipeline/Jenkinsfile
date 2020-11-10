@@ -260,6 +260,10 @@ pipeline {
                 container('pbdeploy'){
                     script{
 
+                        def pbdeployHelper = load("${WORKSPACE}/pipeline/helpers/pbdeployHelper.groovy")
+                        println("******** deploy info = " + pbdeployHelper.genDeployInfo())
+                        //(a, b) = f()
+
                         if (BRANCH_NAME == 'develop'){
 
                             ENV_NAME = DEVELOP_ENV
