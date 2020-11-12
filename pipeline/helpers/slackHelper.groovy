@@ -24,7 +24,11 @@ def sendSuccess() {
                   color: "good",
                   message: "${slackMsg}"
     }else{
-        echo "WARNING: Slack properties are empty or null"
+        echo "WARNING: Slack properties are empty or null!"
+        echo "If you intend to send Slack notification, please define environment variables bellow:"
+        echo "SLACK_CHANNEL = \"#<SLACK-CHANNEL-NAME>\""
+        echo "SLACK_CREDENTIAL_ID = \"<JENKINS-CREDENTIAL-WITH-SLACK-APP-TOKEN>\""
+        echo "SLACK_DOMAIN = \"<YOUR-SLACK-DOMAIN>\""
     }
 
 } 
