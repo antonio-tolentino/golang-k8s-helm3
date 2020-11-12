@@ -99,7 +99,6 @@ pipeline {
                             waitForQualityGate abortPipeline: true
                         }
                     }
-
                 }
             }
         }
@@ -162,10 +161,14 @@ pipeline {
             }
             steps{
                 script{
-                    echo 'INFO: Send approval notification.'
+                    echo 'INFO: Send approval notifications.'
+                    // mail
+                    def mailHelper = load("${WORKSPACE}/pipeline/helpers/mailHelper.groovy")
+                    mailHelper.sendApproval()
 
-                    def notificationHelper = load("${WORKSPACE}/pipeline/helpers/notificationHelper.groovy")
-                    notificationHelper.sendApproval()
+                    // slack
+                    def slackHelper = load("${WORKSPACE}/pipeline/helpers/slackHelper.groovy")
+                    slackHelper.sendApproval()
 
                 }
             }            
@@ -307,9 +310,14 @@ pipeline {
             node('linux') {
                 script{
                     echo 'INFO: Pipeline finished successifully!'
+                    // mail
+                    def mailHelper = load("${WORKSPACE}/pipeline/helpers/mailHelper.groovy")
+                    mailHelper.sendSuccess()
 
-                    def notificationHelper = load("${WORKSPACE}/pipeline/helpers/notificationHelper.groovy")
-                    notificationHelper.sendSuccess()
+                    // slack
+                    def slackHelper = load("${WORKSPACE}/pipeline/helpers/slackHelper.groovy")
+                    slackHelper.sendSuccess()
+
 
                 }
             }            
@@ -318,9 +326,13 @@ pipeline {
             node('linux') {
                 script{
                     echo 'Error: Pipeline finished with failure!'
+                    // mail
+                    def mailHelper = load("${WORKSPACE}/pipeline/helpers/mailHelper.groovy")
+                    mailHelper.sendFailure()
 
-                    def notificationHelper = load("${WORKSPACE}/pipeline/helpers/notificationHelper.groovy")
-                    notificationHelper.sendFailure()
+                    // slack
+                    def slackHelper = load("${WORKSPACE}/pipeline/helpers/slackHelper.groovy")
+                    slackHelper.sendFailure()
 
                 }
             }            

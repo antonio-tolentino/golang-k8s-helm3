@@ -21,6 +21,13 @@ Create config.json with the credentials for Docker Hub or ECR and apply command 
 kubectl create configmap docker-config --from-file=config.json
 ```
 
+## Azure Container Registry (ACR)
+Create config.json with the credentials for Docker Hub or ECR and apply command bellow:
+
+```bash
+kubectl create secret generic acr-credentials --from-file=./config.json
+```
+
 
 
 ## References
