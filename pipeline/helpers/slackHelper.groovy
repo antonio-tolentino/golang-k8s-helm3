@@ -48,8 +48,6 @@ def sendFailure(){
         // Load Slack template
         slackMsg = readFile(file: "${slackTemplate}")
 
-        if (SLACK_CHANNEL.trim() != '' && SLACK_CREDENTIAL_ID.trim() != '' && SLACK_DOMAIN != '' &&
-            !SLACK_CHANNEL.trim() &&  !SLACK_CREDENTIAL_ID.trim() && !SLACK_DOMAIN.trim()){
         // Slack notification
         slackSend channel: "${SLACK_CHANNEL}", 
                   tokenCredentialId:"${SLACK_CREDENTIAL_ID}", 
@@ -57,10 +55,6 @@ def sendFailure(){
                   botUser: true,
                   color: "danger",
                   message: "${slackMsg}"
-        }else{
-            errorMsg()
-        }
-        
     } catch(e){
         errorMsg()
     }    
@@ -84,8 +78,6 @@ def sendApproval(){
         // Load slack template    
         slackMsg = readFile(file: "${slackTemplate}")
 
-        if (SLACK_CHANNEL.trim() != '' && SLACK_CREDENTIAL_ID.trim() != '' && SLACK_DOMAIN != '' &&
-            !SLACK_CHANNEL.trim() &&  !SLACK_CREDENTIAL_ID.trim() && !SLACK_DOMAIN.trim()){
         //slack notification
         slackSend channel: "${SLACK_CHANNEL}", 
                   tokenCredentialId:"${SLACK_CREDENTIAL_ID}", 
@@ -93,10 +85,6 @@ def sendApproval(){
                   botUser: true,
                   color: "warning",
                   message: "${slackMsg}"
-        }else{
-            errorMsg()
-        }
-        
     } catch(e){
         errorMsg()
     }  
