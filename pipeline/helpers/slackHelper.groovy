@@ -15,14 +15,18 @@ def sendSuccess() {
         // Load Slack template
         slackMsg = readFile(file: "${slackTemplate}")
 
-        //slack notification
-        slackSend channel: "${SLACK_CHANNEL.trim()}", 
-                  tokenCredentialId:"${SLACK_CREDENTIAL_ID.trim()}", 
-                  teamDomain: "${SLACK_DOMAIN.trim()}",
-                  botUser: true,
-                  color: "good",
-                  message: "${slackMsg}"
-
+        if (!SLACK_CHANNEL.trim() && !SLACK_CREDENTIAL_ID.trim() && !SLACK_DOMAIN.trim()){
+            //slack notification
+            slackSend channel: "${SLACK_CHANNEL)}", 
+            tokenCredentialId:"${SLACK_CREDENTIAL_ID.trim()}", 
+            teamDomain: "${SLACK_DOMAIN.trim()}",
+            botUser: true,
+            color: "good",
+            message: "${slackMsg}"
+        }else{
+            echo "variable is empty"
+        }
+        
     } catch(e){
         echo "Variable not declared"
     }
