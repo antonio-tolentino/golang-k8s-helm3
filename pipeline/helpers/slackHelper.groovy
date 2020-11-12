@@ -17,9 +17,9 @@ def sendSuccess() {
 
         if (!SLACK_CHANNEL.trim() && !SLACK_CREDENTIAL_ID.trim() && !SLACK_DOMAIN.trim()){
             //slack notification
-            slackSend channel: "${SLACK_CHANNEL)}", 
-            tokenCredentialId:"${SLACK_CREDENTIAL_ID.trim()}", 
-            teamDomain: "${SLACK_DOMAIN.trim()}",
+            slackSend channel: "${SLACK_CHANNEL}", 
+            tokenCredentialId:"${SLACK_CREDENTIAL_ID}", 
+            teamDomain: "${SLACK_DOMAIN}",
             botUser: true,
             color: "good",
             message: "${slackMsg}"
