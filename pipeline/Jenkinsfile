@@ -26,9 +26,9 @@ pipeline {
 
         // Slack notification
         // Any empty slack variable will skip notification
-        SLACK_CHANNEL = "#jenkins-test"
-        SLACK_CREDENTIAL_ID = "Slack"
-        SLACK_DOMAIN = "platformbuilders"
+        //SLACK_CHANNEL = "#jenkins-test"
+        //SLACK_CREDENTIAL_ID = "Slack"
+        //SLACK_DOMAIN = "platformbuilders"
 
     }
 
@@ -77,8 +77,7 @@ pipeline {
                 }
             }            
         }
-
-
+/*
         stage('Code: SonarQube analysis') {
             agent {
                 kubernetes {
@@ -295,7 +294,7 @@ pipeline {
                 }
             }
         }// end stage deploy
-
+*/
     } //end stages
     
     post {
