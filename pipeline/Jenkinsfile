@@ -78,7 +78,7 @@ pipeline {
                 }
             }            
         }
-/*
+
         stage('Code: SonarQube analysis') {
             agent {
                 kubernetes {
@@ -295,7 +295,7 @@ pipeline {
                 }
             }
         }// end stage deploy
-*/
+
     } //end stages
     
     post {
