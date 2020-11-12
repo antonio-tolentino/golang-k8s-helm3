@@ -29,9 +29,9 @@ pipeline {
         //SLACK_CHANNEL = "#jenkins-test"
         //SLACK_CREDENTIAL_ID = "Slack"
         //SLACK_DOMAIN = "platformbuilders"
-        SLACK_CHANNEL = " "
-        SLACK_CREDENTIAL_ID = " "
-        SLACK_DOMAIN = " "        
+        SLACK_CHANNEL = ' '
+        SLACK_CREDENTIAL_ID = ' '
+        SLACK_DOMAIN = ' '        
         
 
     }
