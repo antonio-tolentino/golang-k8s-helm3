@@ -1,0 +1,9 @@
+{
+    "auths": {
+        "<ACR-REPOSITORY>.azurecr.io": {
+            "auth": "dXNlcjpwYXNzd29yZA=="
+        }
+    }
+}
+
+

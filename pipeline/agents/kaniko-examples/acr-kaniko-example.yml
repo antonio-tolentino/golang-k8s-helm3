@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    sidecar: kaniko
+  namespace: jenkins
+spec:
+  containers:
+  - name: kaniko
+    image: gcr.io/kaniko-project/executor:debug
+    #imagePullPolicy: Always
+    command: 
+    - /busybox/cat
+    tty: true
+    volumeMounts:
+    - mountPath: /workspace/cache
+      name: jenkins-kaniko-image-cache      
+    - name: docker-config
+      mountPath: /kaniko/.docker/
+  volumes:
+    - name: jenkins-kaniko-image-cache
+      persistentVolumeClaim:
+        claimName: jenkins-kaniko-image-cache    
+    - name: docker-config
+      secret:
+        secretName: acr-credentials    
