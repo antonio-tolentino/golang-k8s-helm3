@@ -16,9 +16,9 @@ def sendSuccess() {
         slackMsg = readFile(file: "${slackTemplate}")
 
         //slack notification
-        slackSend channel: "${SLACK_CHANNEL}", 
-                  tokenCredentialId:"${SLACK_CREDENTIAL_ID}", 
-                  teamDomain: "${SLACK_DOMAIN}",
+        slackSend channel: "${SLACK_CHANNEL.trim()}", 
+                  tokenCredentialId:"${SLACK_CREDENTIAL_ID.trim()}", 
+                  teamDomain: "${SLACK_DOMAIN.trim()}",
                   botUser: true,
                   color: "good",
                   message: "${slackMsg}"
