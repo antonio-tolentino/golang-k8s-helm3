@@ -35,6 +35,7 @@ def sendSuccess() {
 
 } 
 
+
 def sendFailure(){
 
     // failure templates
@@ -70,6 +71,7 @@ def sendFailure(){
     }    
 }
 
+
 def sendApproval(){
 
     // approval templates
@@ -104,6 +106,7 @@ def sendApproval(){
         errorMsg()
     }  
 }
+
 
 def errorMsg(){
     echo "WARNING: This something wront with Slack variables dependency!"
