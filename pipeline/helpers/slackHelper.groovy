@@ -26,6 +26,7 @@ def sendSuccess() {
             message: "${slackMsg}"
         }else{
             echo "variable is empty"
+            warningMsg()
         }
         
     } catch(e){
@@ -112,5 +113,14 @@ def sendApproval(){
     }
 
     
+}
+
+def warningMsg(){
+    echo "WARNING: This something wront with Slack variables dependency!"
+    echo "If you intend to send Slack notification, please define environment variables bellow:"
+    echo "APP_NAME = \"<APPLICATION-NAME>\""
+    echo "SLACK_CHANNEL = \"#<SLACK-CHANNEL-NAME>\""
+    echo "SLACK_CREDENTIAL_ID = \"<JENKINS-CREDENTIAL-WITH-SLACK-APP-TOKEN>\""
+    echo "SLACK_DOMAIN = \"<YOUR-SLACK-DOMAIN>\""
 }
 return this
