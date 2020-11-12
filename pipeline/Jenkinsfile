@@ -25,14 +25,11 @@ pipeline {
         PROD_ENV = "prd"
 
         // Slack notification
-        // Comment if you do not intend to use slack notification
-        //SLACK_CHANNEL = "#jenkins-test"
-        //SLACK_CREDENTIAL_ID = "Slack"
-        //SLACK_DOMAIN = "platformbuilders"
-        SLACK_CHANNEL = " "
-        SLACK_CREDENTIAL_ID = " "
-        SLACK_DOMAIN = " "        
-        
+        // If you do not intend to use slack notification comment these variables and
+        // any variable 'slackHelper' declared in stages approval and post actions
+        SLACK_CHANNEL = "#jenkins-test"
+        SLACK_CREDENTIAL_ID = "Slack"
+        SLACK_DOMAIN = "platformbuilders"
 
     }
 
