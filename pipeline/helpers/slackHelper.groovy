@@ -4,7 +4,7 @@ def sendSuccess() {
     slackTemplate = "${WORKSPACE}/pipeline/slack/successful_deploy.md"
 
 
-    if (!SLACK_CHANNEL && !SLACK_CREDENTIAL_ID && !SLACK_DOMAIN){
+    if (!env.SLACK_CHANNEL && !env.SLACK_CREDENTIAL_ID && !env.SLACK_DOMAIN){
         // Slack template replace
         echo 'INFO: Replacing success slack template tokens'
         sh "sed -i 's/{APP_NAME}/${APP_NAME}/g' ${slackTemplate}"
