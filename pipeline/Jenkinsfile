@@ -26,10 +26,10 @@ pipeline {
 
         // Slack notification
         // If you do not intend to use slack notification comment these variables and
-        // any variable 'slackHelper' declared in stages approval and post actions
-        SLACK_CHANNEL = "#jenkins-test"
-        SLACK_CREDENTIAL_ID = "Slack"
-        SLACK_DOMAIN = "platformbuilders"
+        // any variable 'slackHelper' declared in stage 'approval' and 'post actions'
+        //SLACK_CHANNEL = "#jenkins-test"
+        //SLACK_CREDENTIAL_ID = "Slack"
+        //SLACK_DOMAIN = "platformbuilders"
 
     }
 
