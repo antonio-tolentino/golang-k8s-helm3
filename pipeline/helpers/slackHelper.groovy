@@ -3,11 +3,6 @@ def sendSuccess() {
     // success templates
     slackTemplate = "${WORKSPACE}/pipeline/slack/successful_deploy.md"
 
-    if (binding.variables["SLACK_CHANNEL"]){
-        echo "SLACK_CHANNEL OK"
-    }else{
-        echo "SLACK_CHANNEL does not exists"
-    }
 
     if (!SLACK_CHANNEL && !SLACK_CREDENTIAL_ID && !SLACK_DOMAIN){
         // Slack template replace
