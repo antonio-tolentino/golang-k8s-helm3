@@ -16,18 +16,13 @@ def sendSuccess() {
         // Load Slack template
         slackMsg = readFile(file: "${slackTemplate}")
 
-        if (SLACK_CHANNEL.trim() != '' && SLACK_CREDENTIAL_ID.trim() != '' && SLACK_DOMAIN != '' &&
-            !SLACK_CHANNEL.trim() &&  !SLACK_CREDENTIAL_ID.trim() && !SLACK_DOMAIN.trim()){
-            //slack notification
-            slackSend channel: "${SLACK_CHANNEL}", 
-            tokenCredentialId:"${SLACK_CREDENTIAL_ID}", 
-            teamDomain: "${SLACK_DOMAIN}",
-            botUser: true,
-            color: "good",
-            message: "${slackMsg}"
-        }else{
-            errorMsg()
-        }
+        //slack notification
+        slackSend channel: "${SLACK_CHANNEL}", 
+        tokenCredentialId:"${SLACK_CREDENTIAL_ID}", 
+        teamDomain: "${SLACK_DOMAIN}",
+        botUser: true,
+        color: "good",
+        message: "${slackMsg}"
         
     } catch(e){
         errorMsg()
