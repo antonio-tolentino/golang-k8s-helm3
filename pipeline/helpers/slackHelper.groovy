@@ -4,6 +4,7 @@ def sendSuccess() {
     slackTemplate = "${WORKSPACE}/pipeline/slack/successful_deploy.md"
 
     try{
+        // Slack template replace
         echo 'INFO: Replacing success slack template tokens'
         sh "sed -i 's/{APP_NAME}/${APP_NAME}/g' ${slackTemplate}"
         sh "sed -i 's/{JOB_NAME}/${JOB_NAME.replace('/','\\/').replace('%2F','\\/')}/g' ${slackTemplate}"
@@ -25,37 +26,12 @@ def sendSuccess() {
             color: "good",
             message: "${slackMsg}"
         }else{
-            echo "variable is empty"
-            warningMsg()
+            errorMsg()
         }
         
     } catch(e){
-        echo "Variable not declared"
+        errorMsg()
     }
-
-/*
-    if (!SLACK_CHANNEL && !SLACK_CREDENTIAL_ID && !SLACK_DOMAIN){
-        // Slack template replace
-        echo 'INFO: Replacing success slack template tokens'
-        sh "sed -i 's/{APP_NAME}/${APP_NAME}/g' ${slackTemplate}"
-        sh "sed -i 's/{JOB_NAME}/${JOB_NAME.replace('/','\\/').replace('%2F','\\/')}/g' ${slackTemplate}"
-        sh "sed -i 's/{BRANCH_NAME}/${BRANCH_NAME.replace('/','\\/')}/g' ${slackTemplate}"
-        sh "sed -i 's/{BUILD_URL}/${BUILD_URL.replace('/','\\/')}/g' ${slackTemplate}"
-        sh "sed -i 's/{RUN_DISPLAY_URL}/${RUN_DISPLAY_URL.replace('/','\\/')}/g' ${slackTemplate}"
-        sh "sed -i 's/{DURATION_STRING}/${currentBuild.durationString.replace(' and counting', '')}/g' ${slackTemplate}"
-        
-        // Load Slack template
-        slackMsg = readFile(file: "${slackTemplate}")
-
-        //slack notification
-        slackSend channel: "${SLACK_CHANNEL}", 
-                  tokenCredentialId:"${SLACK_CREDENTIAL_ID}", 
-                  teamDomain: "${SLACK_DOMAIN}",
-                  botUser: true,
-                  color: "good",
-                  message: "${slackMsg}"
-    }
-*/
 
 } 
 
@@ -64,7 +40,7 @@ def sendFailure(){
     // failure templates
     slackTemplate = "${WORKSPACE}/pipeline/slack/failed_deploy.md"
 
-    if (SLACK_CHANNEL != "" && SLACK_CREDENTIAL_ID != "" && SLACK_DOMAIN != ""){
+    try{
         // Slack template replace
         echo 'INFO: Replacing failure slack template tokens'
         sh "sed -i 's/{APP_NAME}/${APP_NAME}/g' ${slackTemplate}"
@@ -76,6 +52,8 @@ def sendFailure(){
         // Load Slack template
         slackMsg = readFile(file: "${slackTemplate}")
 
+        if (SLACK_CHANNEL.trim() != '' && SLACK_CREDENTIAL_ID.trim() != '' && SLACK_DOMAIN != '' &&
+            !SLACK_CHANNEL.trim() &&  !SLACK_CREDENTIAL_ID.trim() && !SLACK_DOMAIN.trim()){
         // Slack notification
         slackSend channel: "${SLACK_CHANNEL}", 
                   tokenCredentialId:"${SLACK_CREDENTIAL_ID}", 
@@ -83,7 +61,13 @@ def sendFailure(){
                   botUser: true,
                   color: "danger",
                   message: "${slackMsg}"
-    }
+        }else{
+            errorMsg()
+        }
+        
+    } catch(e){
+        errorMsg()
+    }    
 }
 
 def sendApproval(){
@@ -91,7 +75,7 @@ def sendApproval(){
     // approval templates
     slackTemplate = "${WORKSPACE}/pipeline/slack/approval_deploy.md"
 
-    if (SLACK_CHANNEL != "" && SLACK_CREDENTIAL_ID != "" && SLACK_DOMAIN != ""){
+    try{
         // Slack template replace
         echo 'INFO: Replacing approval slack template tokens'
         sh "sed -i 's/{APP_NAME}/${APP_NAME}/g' ${slackTemplate}"
@@ -103,6 +87,8 @@ def sendApproval(){
         // Load slack template    
         slackMsg = readFile(file: "${slackTemplate}")
 
+        if (SLACK_CHANNEL.trim() != '' && SLACK_CREDENTIAL_ID.trim() != '' && SLACK_DOMAIN != '' &&
+            !SLACK_CHANNEL.trim() &&  !SLACK_CREDENTIAL_ID.trim() && !SLACK_DOMAIN.trim()){
         //slack notification
         slackSend channel: "${SLACK_CHANNEL}", 
                   tokenCredentialId:"${SLACK_CREDENTIAL_ID}", 
@@ -110,12 +96,16 @@ def sendApproval(){
                   botUser: true,
                   color: "warning",
                   message: "${slackMsg}"
-    }
-
-    
+        }else{
+            errorMsg()
+        }
+        
+    } catch(e){
+        errorMsg()
+    }  
 }
 
-def warningMsg(){
+def errorMsg(){
     echo "WARNING: This something wront with Slack variables dependency!"
     echo "If you intend to send Slack notification, please define environment variables bellow:"
     echo "APP_NAME = \"<APPLICATION-NAME>\""
