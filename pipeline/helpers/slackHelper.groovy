@@ -15,7 +15,7 @@ def sendSuccess() {
         // Load Slack template
         slackMsg = readFile(file: "${slackTemplate}")
 
-        if (!SLACK_CHANNEL.trim() && !SLACK_CREDENTIAL_ID.trim() && !SLACK_DOMAIN.trim()){
+        if (SLACK_CHANNEL.trim() != '' && SLACK_CREDENTIAL_ID.trim() != '' && SLACK_DOMAIN != ''){
             //slack notification
             slackSend channel: "${SLACK_CHANNEL}", 
             tokenCredentialId:"${SLACK_CREDENTIAL_ID}", 
