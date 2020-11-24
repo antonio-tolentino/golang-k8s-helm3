@@ -267,7 +267,7 @@ pipeline {
                     script{
                         // Generate ENV_NAME, HELM_NAME, REPOSITORY, NAMESPACE based on defined environment variables
                         def pbdeployHelper = load("${WORKSPACE}/pipeline/helpers/pbdeployHelper.groovy")
-                        (ENV_NAME, HELM_NAME, REPOSITORY, NAMESPACE) = pbdeployHelper.genDeployInfo()
+                        (ENV_NAME, HELM_NAME, NAMESPACE, REPOSITORY) = pbdeployHelper.genDeployInfo()
 
 
                         // Inject secrets from GCP Secret Manager

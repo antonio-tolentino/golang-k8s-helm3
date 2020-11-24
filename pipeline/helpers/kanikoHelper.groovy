@@ -16,7 +16,6 @@ def generateRepo(){
             repository = "${REGISTRY}/${APP_NAME}-tst:${IMAGE_TAG}";
     }
 
-
     return repository
 }
 
