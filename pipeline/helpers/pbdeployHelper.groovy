@@ -10,7 +10,7 @@ def genDeployInfo(){
         case 'develop': 
             (envName, helmName, namespace, repository) = genDevelopInfo(); 
             break;
-        case BRANCH_NAME.contains("release/"): 
+        case ~/^release\/.*/: 
             (envName, helmName, namespace, repository) = genReleaseInfo(); 
             break;
         case 'master': 
