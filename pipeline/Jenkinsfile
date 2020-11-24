@@ -24,6 +24,9 @@ pipeline {
         RELEASE_ENV = "hml"
         PROD_ENV = "prd"
 
+        // multiple releases
+        MULTIPLE_RELEASES=true
+
         // Slack notification
         // If you do not intend to use slack notification comment these variables and
         // any variable 'slackHelper' declared in stage 'approval' and 'post actions'

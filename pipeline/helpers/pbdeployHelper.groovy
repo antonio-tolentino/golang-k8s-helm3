@@ -13,14 +13,26 @@ def genDeployInfo(){
         // image repository
         REPOSITORY = "${REGISTRY}/${APP_NAME}-${DEVELOP_ENV}"
     } else if (BRANCH_NAME.contains("release/")){
-        // Split branch name and get semantic version
-        def delimiterPos = "${BRANCH_NAME}".indexOf('/')
-        def releaseVersion = "${BRANCH_NAME}".substring( delimiterPos + 1 ).replace('.','-') 
-        ENV_NAME = RELEASE_ENV
-        HELM_NAME = "${APP_NAME}-${RELEASE_ENV}-${releaseVersion}"
-        NAMESPACE = RELEASE_NAMESPACE
-        // image repository
-        REPOSITORY = "${REGISTRY}/${APP_NAME}-${RELEASE_ENV}-${releaseVersion}"
+
+        if (MULTIPLE_RELEASES) {
+            // Split branch name and get semantic version
+            def delimiterPos = "${BRANCH_NAME}".indexOf('/')
+            def releaseVersion = "${BRANCH_NAME}".substring( delimiterPos + 1 ).replace('.','-') 
+            ENV_NAME = RELEASE_ENV
+            HELM_NAME = "${APP_NAME}-${RELEASE_ENV}-${releaseVersion}"
+            NAMESPACE = RELEASE_NAMESPACE
+            // image repository
+            REPOSITORY = "${REGISTRY}/${APP_NAME}-${RELEASE_ENV}-${releaseVersion}"
+
+        } else {
+            
+            ENV_NAME = RELEASE_ENV
+            HELM_NAME = "${APP_NAME}-${RELEASE_ENV}"
+            NAMESPACE = RELEASE_NAMESPACE
+            // image repository
+            REPOSITORY = "${REGISTRY}/${APP_NAME}-${RELEASE_ENV}"
+        }
+
     } else if (BRANCH_NAME == 'master'){
         ENV_NAME = PROD_ENV
         HELM_NAME = "${APP_NAME}-${PROD_ENV}"
