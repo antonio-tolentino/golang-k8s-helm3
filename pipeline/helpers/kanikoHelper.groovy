@@ -21,7 +21,7 @@ def generateRepo(){
 }
 
 //Generate Develop repository
-genDevelop(){
+def genDevelop(){
     def repository
 
     // image repository and tag
@@ -31,7 +31,7 @@ genDevelop(){
 }
 
 //Generate Release repository
-genRelease(){
+def genRelease(){
 
     def repository
 
@@ -50,7 +50,7 @@ genRelease(){
 }
 
 // Generate Production repository
-genProd(){
+def genProd(){
     def repository
 
     // image repository and tag
