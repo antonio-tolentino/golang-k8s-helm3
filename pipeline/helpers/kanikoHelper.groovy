@@ -1,62 +1,62 @@
 def generateRepo(){
     
-    def REPOSITORY = ""
+    def repository
 
     switch (BRANCH_NAME) {
-        case 1: 
-            REPOSITORY = genDevelop(); 
+        case 'develop': 
+            repository = genDevelop(); 
             break;
-        case 2: 
-            REPOSITORY = genRelease(); 
+        case BRANCH_NAME.contains("release/"): 
+            repository = genRelease(); 
             break;
-        case : 
-            REPOSITORY = genProd(); 
+        case 'master': 
+            repository = genProd(); 
             break;
         default: 
-            REPOSITORY = "${REGISTRY}/${APP_NAME}-tst:${IMAGE_TAG}";
+            repository = "${REGISTRY}/${APP_NAME}-tst:${IMAGE_TAG}";
     }
 
 
-    return REPOSITORY
+    return repository
 }
 
 //Generate Develop repository
 genDevelop(){
-    def REPOSITORY = ""
+    def repository
 
     // image repository and tag
-    REPOSITORY = "${REGISTRY}/${APP_NAME}-${DEVELOP_ENV}:${IMAGE_TAG}"
+    repository = "${REGISTRY}/${APP_NAME}-${DEVELOP_ENV}:${IMAGE_TAG}"
 
-    return REPOSITORY
+    return repository
 }
 
 //Generate Release repository
 genRelease(){
 
-    def REPOSITORY = ""
+    def repository
 
     if (MULTIPLE_RELEASES){
         // Split branch name and get semantic version
         def delimiterPos = "${BRANCH_NAME}".indexOf('/')
         def releaseVersion = "${BRANCH_NAME}".substring( delimiterPos + 1 ).replace('.','-') 
         // image repository and tag
-        REPOSITORY = "${REGISTRY}/${APP_NAME}-${RELEASE_ENV}-${releaseVersion}:${IMAGE_TAG}"
+        repository = "${REGISTRY}/${APP_NAME}-${RELEASE_ENV}-${releaseVersion}:${IMAGE_TAG}"
     }else{
         // image repository and tag
-        REPOSITORY = "${REGISTRY}/${APP_NAME}-${RELEASE_ENV}:${IMAGE_TAG}"
+        repository = "${REGISTRY}/${APP_NAME}-${RELEASE_ENV}:${IMAGE_TAG}"
     }
 
-    return REPOSITORY
+    return repository
 }
 
 // Generate Production repository
 genProd(){
-    def REPOSITORY = ""
+    def repository
 
     // image repository and tag
     REPOSITORY = "${REGISTRY}/${APP_NAME}-${PROD_ENV}:${IMAGE_TAG}"
 
-    return REPOSITORY
+    return repository
 }
 
 return this
