@@ -6,7 +6,7 @@ def generateRepo(){
         case 'develop': 
             repository = genDevelop(); 
             break;
-        case { BRANCH_NAME.contains("release/") }: 
+        case ~/^release\/.*/: 
             repository = genRelease(); 
             break;
         case 'master': 
