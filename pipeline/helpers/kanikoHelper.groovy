@@ -34,7 +34,12 @@ def genRelease(){
 
     def repository
 
-    echo "multiple releases = ${MULTIPLE_RELEASES}"    
+     
+    if (MULTIPLE_RELEASES){
+        echo "multiple releases is true"   
+    }else{
+        echo "multiple releases is false"   
+    }
 
     if (MULTIPLE_RELEASES){
         // Split branch name and get semantic version
