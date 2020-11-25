@@ -35,7 +35,7 @@ def genRelease(){
     def repository
 
      
-    if (MULTIPLE_RELEASES){
+    if (MULTIPLE_RELEASES == true){
         echo "multiple releases is true"   
     }else{
         echo "multiple releases is false"   
