@@ -53,7 +53,7 @@ def genProd(){
     def repository
 
     // image repository and tag
-    REPOSITORY = "${REGISTRY}/${APP_NAME}-${PROD_ENV}:${IMAGE_TAG}"
+    repository = "${REGISTRY}/${APP_NAME}-${PROD_ENV}:${IMAGE_TAG}"
 
     return repository
 }
