@@ -25,7 +25,7 @@ pipeline {
         PROD_ENV = "prd"
 
         // multiple releases
-        MULTIPLE_RELEASES = false
+        MULTIPLE_RELEASES = true
 
         // Slack notification
         // If you do not intend to use slack notification comment these variables and
