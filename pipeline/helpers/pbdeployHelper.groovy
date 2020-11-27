@@ -10,7 +10,7 @@ def genDeployInfo(){
         case 'develop': 
             (envName, helmName, namespace, repository) = genDevelopInfo(); 
             break;
-        case BRANCH_NAME.contains("release/"): 
+        case ~/^release\/.*/: 
             (envName, helmName, namespace, repository) = genReleaseInfo(); 
             break;
         case 'master': 
@@ -47,7 +47,7 @@ def genReleaseInfo(){
     def namespace
     def repository    
 
-    if (MULTIPLE_RELEASES) {
+    if (MULTIPLE_RELEASES.toBoolean()) {
         // Split branch name and get semantic version
         def delimiterPos = "${BRANCH_NAME}".indexOf('/')
         def releaseVersion = "${BRANCH_NAME}".substring( delimiterPos + 1 ).replace('.','-') 

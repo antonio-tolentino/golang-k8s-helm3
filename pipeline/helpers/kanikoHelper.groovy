@@ -6,7 +6,7 @@ def generateRepo(){
         case 'develop': 
             repository = genDevelop(); 
             break;
-        case BRANCH_NAME.contains("release/"): 
+        case ~/^release\/.*/: 
             repository = genRelease(); 
             break;
         case 'master': 
@@ -34,7 +34,7 @@ def genRelease(){
 
     def repository
 
-    if (MULTIPLE_RELEASES){
+    if (MULTIPLE_RELEASES.toBoolean()){
         // Split branch name and get semantic version
         def delimiterPos = "${BRANCH_NAME}".indexOf('/')
         def releaseVersion = "${BRANCH_NAME}".substring( delimiterPos + 1 ).replace('.','-') 
