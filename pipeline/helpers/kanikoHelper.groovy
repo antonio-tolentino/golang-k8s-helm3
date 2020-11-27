@@ -34,14 +34,7 @@ def genRelease(){
 
     def repository
 
-     
     if (MULTIPLE_RELEASES == true){
-        echo "multiple releases is true"   
-    }else{
-        echo "multiple releases is false"   
-    }
-
-    if (MULTIPLE_RELEASES){
         // Split branch name and get semantic version
         def delimiterPos = "${BRANCH_NAME}".indexOf('/')
         def releaseVersion = "${BRANCH_NAME}".substring( delimiterPos + 1 ).replace('.','-') 
