@@ -1,37 +1,84 @@
 def genDeployInfo(){
     
-    def ENV_NAME = ""
-    def HELM_NAME = ""
-    def REPOSITORY = ""
-    def NAMESPACE = ""
+    def envName
+    def helmName
+    def namespace    
+    def repository
 
 
-    if (BRANCH_NAME == 'develop'){
-        ENV_NAME = DEVELOP_ENV
-        HELM_NAME = "${APP_NAME}-${DEVELOP_ENV}"
-        NAMESPACE = DEVELOP_NAMESPACE
-        // image repository
-        REPOSITORY = "${REGISTRY}/${APP_NAME}-${DEVELOP_ENV}"
-    } else if (BRANCH_NAME.contains("release/")){
-        // Split branch name and get semantic version
-        def delimiterPos = "${BRANCH_NAME}".indexOf('/')
-        def releaseVersion = "${BRANCH_NAME}".substring( delimiterPos + 1 ).replace('.','-') 
-        ENV_NAME = RELEASE_ENV
-        HELM_NAME = "${APP_NAME}-${RELEASE_ENV}-${releaseVersion}"
-        NAMESPACE = RELEASE_NAMESPACE
-        // image repository
-        REPOSITORY = "${REGISTRY}/${APP_NAME}-${RELEASE_ENV}-${releaseVersion}"
-    } else if (BRANCH_NAME == 'master'){
-        ENV_NAME = PROD_ENV
-        HELM_NAME = "${APP_NAME}-${PROD_ENV}"
-        // image repository 
-        REPOSITORY = "${REGISTRY}/${APP_NAME}-${PROD_ENV}"
-        NAMESPACE = PROD_NAMESPACE
+    switch (BRANCH_NAME) {
+        case 'develop': 
+            (envName, helmName, namespace, repository) = genDevelopInfo(); 
+            break;
+        case ~/^release\/.*/: 
+            (envName, helmName, namespace, repository) = genReleaseInfo(); 
+            break;
+        case 'master': 
+            (envName, helmName, namespace, repository) = genProdInfo(); 
+            break;
+        default: 
+            repository = "${REGISTRY}/${APP_NAME}-tst:${IMAGE_TAG}";
     }
 
 
+    return [envName, helmName, namespace, repository]
+}
 
-    return [ENV_NAME, HELM_NAME, REPOSITORY, NAMESPACE]
+// Generate Develop deploy info
+def genDevelopInfo(){
+    def envName
+    def helmName
+    def namespace    
+    def repository
+
+
+    envName = DEVELOP_ENV
+    helmName = "${APP_NAME}-${DEVELOP_ENV}"
+    namespace = DEVELOP_NAMESPACE
+    repository = "${REGISTRY}/${APP_NAME}-${DEVELOP_ENV}"
+
+    return [envName, helmName, namespace, repository]
+}
+
+// Generate Release deploy info
+def genReleaseInfo(){
+    def envName
+    def helmName
+    def namespace
+    def repository    
+
+    if (MULTIPLE_RELEASES.toBoolean()) {
+        // Split branch name and get semantic version
+        def delimiterPos = "${BRANCH_NAME}".indexOf('/')
+        def releaseVersion = "${BRANCH_NAME}".substring( delimiterPos + 1 ).replace('.','-') 
+
+        envName = RELEASE_ENV
+        helmName = "${APP_NAME}-${RELEASE_ENV}-${releaseVersion}"
+        namespace = RELEASE_NAMESPACE
+        repository = "${REGISTRY}/${APP_NAME}-${RELEASE_ENV}-${releaseVersion}"
+    } else {
+        envName = RELEASE_ENV
+        helmName = "${APP_NAME}-${RELEASE_ENV}"
+        namespace = RELEASE_NAMESPACE
+        repository = "${REGISTRY}/${APP_NAME}-${RELEASE_ENV}"
+    }    
+
+    return [envName, helmName, namespace, repository]
+}
+
+// Generate Production deploy info
+def genProdInfo(){
+    def envName
+    def helmName
+    def namespace
+    def repository
+
+    envName = PROD_ENV
+    helmName = "${APP_NAME}-${PROD_ENV}"
+    namespace = PROD_NAMESPACE    
+    repository = "${REGISTRY}/${APP_NAME}-${PROD_ENV}"    
+
+    return [envName, helmName, namespace, repository]
 }
 
 return this

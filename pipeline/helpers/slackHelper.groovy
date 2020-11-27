@@ -93,7 +93,7 @@ def sendApproval(){
 
 def errorMsg(){
     echo "WARNING: This something wront with Slack variables dependency!"
-    echo "If you intend to send Slack notification, please define environment variables bellow:"
+    echo "If you intend to send Slack notification, please verify global environment variables bellow:"
     echo "APP_NAME = \"<APPLICATION-NAME>\""
     echo "SLACK_CHANNEL = \"#<SLACK-CHANNEL-NAME>\""
     echo "SLACK_CREDENTIAL_ID = \"<JENKINS-CREDENTIAL-WITH-SLACK-APP-TOKEN>\""

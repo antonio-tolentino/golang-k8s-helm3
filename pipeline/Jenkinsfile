@@ -24,6 +24,9 @@ pipeline {
         RELEASE_ENV = "hml"
         PROD_ENV = "prd"
 
+        // multiple releases
+        MULTIPLE_RELEASES = false
+
         // Slack notification
         // If you do not intend to use slack notification comment these variables and
         // any variable 'slackHelper' declared in stage 'approval' and 'post actions'
@@ -264,7 +267,7 @@ pipeline {
                     script{
                         // Generate ENV_NAME, HELM_NAME, REPOSITORY, NAMESPACE based on defined environment variables
                         def pbdeployHelper = load("${WORKSPACE}/pipeline/helpers/pbdeployHelper.groovy")
-                        (ENV_NAME, HELM_NAME, REPOSITORY, NAMESPACE) = pbdeployHelper.genDeployInfo()
+                        (ENV_NAME, HELM_NAME, NAMESPACE, REPOSITORY) = pbdeployHelper.genDeployInfo()
 
 
                         // Inject secrets from GCP Secret Manager
