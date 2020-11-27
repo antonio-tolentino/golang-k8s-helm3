@@ -47,7 +47,7 @@ def genReleaseInfo(){
     def namespace
     def repository    
 
-    if (MULTIPLE_RELEASES == true) {
+    if (MULTIPLE_RELEASES.toBoolean()) {
         // Split branch name and get semantic version
         def delimiterPos = "${BRANCH_NAME}".indexOf('/')
         def releaseVersion = "${BRANCH_NAME}".substring( delimiterPos + 1 ).replace('.','-') 
