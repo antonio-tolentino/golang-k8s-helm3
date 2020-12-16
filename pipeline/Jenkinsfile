@@ -284,6 +284,8 @@ pipeline {
                                 --kube-secret-file=pipeline/helm3/appchart/templates/secrets.yaml
                            """ 
 
+                        sh "cat pipeline/helm3/appchart/templates/secrets.yaml"
+
                         // helm 3 
                         echo "INFO: Deploy helm templates"
                         sh """ helm upgrade --install --debug \
