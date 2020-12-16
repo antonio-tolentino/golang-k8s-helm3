@@ -1,5 +1,5 @@
 def getRegistry() {
-    node('defRegistry') {
+    node(none) {
         echo "project = ${DEVELOP_GCP_PROJECT}"
         return ${DEVELOP_GCP_PROJECT}
     }
