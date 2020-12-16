@@ -7,6 +7,10 @@ pipeline {
         APP_NAME = "books"
         COMPANY_NAME = "Acme Corporation"
 
+        DEVELOP_GCP_PROJECT = "arquitetura-207620"
+        RELEASE_GCP_PROJECT = "arquitetura-207620"
+        PROD_GCP_PROJECT = "arquitetura-207620"
+
         // GCP Secret Manager
         GCP_PROJECT = "arquitetura-207620"
         GCP_SECRET = "books-secrets"
@@ -261,6 +265,7 @@ pipeline {
             environment{
                 // Image tag
                 IMAGE_TAG = GIT_COMMIT.take(7)
+                REGISTRY = "gcr.io/antonio"
             }                      
             steps{
                 container('pbdeploy'){
