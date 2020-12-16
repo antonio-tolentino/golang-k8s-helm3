@@ -16,7 +16,7 @@ pipeline {
         GCP_SECRET = "books-secrets"
         
         // Image registry
-        //REGISTRY = "gcr.io/${GCP_PROJECT}"
+        REGISTRY = "gcr.io/${GCP_PROJECT}"
 
         // Namespaces 
         DEVELOP_NAMESPACE = "develop"
@@ -128,7 +128,6 @@ pipeline {
             environment{
                 // Image tag
                 IMAGE_TAG = GIT_COMMIT.take(7)
-                REGISTRY = "gcr.io/arquitetura-207620"
             }
             steps {
                 container('kaniko') {
@@ -266,7 +265,7 @@ pipeline {
             environment{
                 // Image tag
                 IMAGE_TAG = GIT_COMMIT.take(7)
-                REGISTRY = "gcr.io/arquitetura-207620"
+                REGISTRY = "gcr.io/antonio"
             }                      
             steps{
                 container('pbdeploy'){
