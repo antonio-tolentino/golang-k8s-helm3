@@ -19,8 +19,7 @@ pipeline {
         PROD_GCP_PROJECT = "arquitetura-207620"
 
         // GCP Secret Manager
-        //GCP_PROJECT = "arquitetura-207620"
-        GCP_PROJECT= getRegistry()
+        GCP_PROJECT = "arquitetura-207620"
         GCP_SECRET = "books-secrets"
         
         // Image registry
