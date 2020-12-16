@@ -7,7 +7,7 @@ pipeline {
         APP_NAME = "books"
         COMPANY_NAME = "Acme Corporation"
 
-        PROD_GCP_PROJECT = "arquitetura-207620X"
+        PROD_GCP_PROJECT = "arquitetura-2076200000"
 
         // GCP Secret Manager
         GCP_PROJECT = "arquitetura-207620"
