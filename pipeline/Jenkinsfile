@@ -12,7 +12,9 @@ pipeline {
         PROD_GCP_PROJECT = "arquitetura-207620"
 
         // GCP Secret Manager
-        GCP_PROJECT = "arquitetura-207620"
+        //GCP_PROJECT = "arquitetura-207620"
+        def kanikoHelper = load("${WORKSPACE}/pipeline/helpers/registryHelper.groovy")
+        GCP_PROJECT= registryHelper.defineRegistry()
         GCP_SECRET = "books-secrets"
         
         // Image registry
@@ -265,7 +267,6 @@ pipeline {
             environment{
                 // Image tag
                 IMAGE_TAG = GIT_COMMIT.take(7)
-                REGISTRY = "gcr.io/antonio"
             }                      
             steps{
                 container('pbdeploy'){
