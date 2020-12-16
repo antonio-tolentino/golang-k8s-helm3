@@ -7,10 +7,10 @@ def defineRegistry(){
             registry = registryDevelop(); 
             break;
         case ~/^release\/.*/: 
-            registry = registryRelease(); 
+            //registry = registryRelease(); 
             break;
         case 'master': 
-            registry = registryProd(); 
+            //registry = registryProd(); 
             break;
         default: 
             registry = 'tst';

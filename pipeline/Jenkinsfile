@@ -1,3 +1,9 @@
+def getRegistry() {
+    node('master') {
+        return env.PATH.split(':')[0]
+    }
+}
+
 pipeline {
     //Global agent  
     agent none
@@ -12,9 +18,8 @@ pipeline {
         PROD_GCP_PROJECT = "arquitetura-207620"
 
         // GCP Secret Manager
-        //GCP_PROJECT = "arquitetura-207620"
-        def registryHelper = load("${WORKSPACE}/pipeline/helpers/registryHelper.groovy")
-        GCP_PROJECT= registryHelper.defineRegistry()
+        GCP_PROJECT = "arquitetura-207620"
+        //GCP_PROJECT= getRegistry()
         GCP_SECRET = "books-secrets"
         
         // Image registry
