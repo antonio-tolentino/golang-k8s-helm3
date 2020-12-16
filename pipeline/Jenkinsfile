@@ -9,7 +9,7 @@ pipeline {
 
         //GCP Project
         GCP_PROJECT = "arquitetura-207620"
-        // INFO: Use this variable if you have an exclusive production GCP project only.
+        // INFO: Use "PROD_GCP_PROJECT" variable if you have an exclusive production GCP project only.
         PROD_GCP_PROJECT = "arquitetura-207620"
 
         // GCP Secret Manager
@@ -17,7 +17,7 @@ pipeline {
         
         // Image registry
         //REGISTRY = "gcr.io/${GCP_PROJECT}"
-        // INFO: Use this variable if you have an exclusive production GCP project only.
+        // INFO: Use this value for "REGISTRY" if you have an exclusive production GCP project only.
         REGISTRY = "gcr.io/${env.BRANCH_NAME == "master" ? env.PROD_GCP_PROJECT : env.GCP_PROJECT}"
 
         // Namespaces 
