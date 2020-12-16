@@ -1,6 +1,7 @@
 def getRegistry() {
-    node('master') {
-        return env.PATH.split(':')[0]
+    node('defRegistry') {
+        echo "project = ${DEVELOP_GCP_PROJECT}"
+        return ${DEVELOP_GCP_PROJECT}
     }
 }
 
@@ -18,8 +19,8 @@ pipeline {
         PROD_GCP_PROJECT = "arquitetura-207620"
 
         // GCP Secret Manager
-        GCP_PROJECT = "arquitetura-207620"
-        //GCP_PROJECT= getRegistry()
+        //GCP_PROJECT = "arquitetura-207620"
+        GCP_PROJECT= getRegistry()
         GCP_SECRET = "books-secrets"
         
         // Image registry
