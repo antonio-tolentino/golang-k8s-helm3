@@ -1,10 +1,3 @@
-def getRegistry() {
-    node(none) {
-        echo "project = ${DEVELOP_GCP_PROJECT}"
-        return ${DEVELOP_GCP_PROJECT}
-    }
-}
-
 pipeline {
     //Global agent  
     agent none
@@ -14,8 +7,6 @@ pipeline {
         APP_NAME = "books"
         COMPANY_NAME = "Acme Corporation"
 
-        DEVELOP_GCP_PROJECT = "arquitetura-207620"
-        RELEASE_GCP_PROJECT = "arquitetura-207620"
         PROD_GCP_PROJECT = "arquitetura-207620"
 
         // GCP Secret Manager
@@ -251,7 +242,7 @@ pipeline {
                            serviceAccount: jenkins
                            containers:
                            - name: pbdeploy
-                             image: ${REGISTRY}/pbdeploy:v0.3.0
+                             image: ${env.BRANCH_NAME == "master" ? env.PROD_GCP_PROJECT : env.GCP_PROJECT}/pbdeploy:v0.3.0
                              env:
                                - name: GOOGLE_APPLICATION_CREDENTIALS
                                  value: /secret/jenkins-gcp-credentials.json  
