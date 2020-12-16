@@ -13,7 +13,7 @@ pipeline {
 
         // GCP Secret Manager
         //GCP_PROJECT = "arquitetura-207620"
-        def kanikoHelper = load("${WORKSPACE}/pipeline/helpers/registryHelper.groovy")
+        def registryHelper = load("${WORKSPACE}/pipeline/helpers/registryHelper.groovy")
         GCP_PROJECT= registryHelper.defineRegistry()
         GCP_SECRET = "books-secrets"
         
