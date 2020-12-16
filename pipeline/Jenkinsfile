@@ -7,7 +7,7 @@ pipeline {
         APP_NAME = "books"
         COMPANY_NAME = "Acme Corporation"
 
-        PROD_GCP_PROJECT = "arquitetura-207620"
+        PROD_GCP_PROJECT = "arquitetura-207620X"
 
         // GCP Secret Manager
         GCP_PROJECT = "arquitetura-207620"
@@ -15,7 +15,7 @@ pipeline {
         
         // Image registry
         //REGISTRY = "gcr.io/${GCP_PROJECT}"
-        REGISTRY = "gcr.io/${env.BRANCH_NAME == "master" ? env.PROD_GCP_PROJECT : env.GCP_PROJECT}"
+        REGISTRY = "gcr.io/${env.BRANCH_NAME == "develop" ? env.PROD_GCP_PROJECT : env.GCP_PROJECT}"
 
         // Namespaces 
         DEVELOP_NAMESPACE = "develop"
