@@ -98,10 +98,12 @@ autoscaling:
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
 
+## Application secrets
 secret: 
   enabled: true
   name: books-dev
 
+## Application configmap
 configMap:
   enabled: true
   name: books-dev
@@ -109,6 +111,7 @@ configMap:
    logFile: /tmp/output.log
    logSize: 10m
 
+## Application environment variables
 #podEnvironment: []
 podEnvironment:
   - name: LOG_LEVEL
