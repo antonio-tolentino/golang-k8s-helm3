@@ -1,7 +1,10 @@
+{{- if .Values.configMap.enabled -}}
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: {{ include "appchart.fullname" . }}
+  name: {{ .Values.configMap.name }}
   labels:
     {{- include "appchart.labels" . | nindent 4 }}
 data:
+  {{- toYaml .Values.configMap.keys | nindent 2 }}
+{{- end }}  

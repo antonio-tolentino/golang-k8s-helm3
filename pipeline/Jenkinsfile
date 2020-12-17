@@ -279,10 +279,11 @@ pipeline {
                         // Inject secrets from GCP Secret Manager
                         echo "INFO: Inject secrets from GCP Secret Manager to Helm secret template"
                         sh """  gcpsecrets --project=${GCP_PROJECT} \
-                                --gcp-secret-name=${GCP_SECRET}\
+                                --gcp-secret-name=${GCP_SECRET}-${ENV_NAME}\
                                 --create-new-secret-file=no \
                                 --kube-secret-file=pipeline/helm3/appchart/templates/secrets.yaml
                            """ 
+
 
                         // helm 3 
                         echo "INFO: Deploy helm templates"
