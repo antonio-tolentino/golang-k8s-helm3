@@ -97,6 +97,37 @@ autoscaling:
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
 
+
+## Application secrets
+secret: 
+  enabled: true
+  name: books-prd
+
+## Application configmap
+configMap:
+  enabled: true
+  name: books-prd
+  keys: 
+   logFile: /tmp/output.log
+   logSize: 10m
+
+## Application environment variables
+#podEnvironment: []
+podEnvironment:
+  - name: LOG_LEVEL
+    value: "INFO"
+  - name: LOG_FILE
+    valueFrom:
+      configMapKeyRef:
+        key: logFile
+        name: books-prd
+  - name: DB_HOST
+    valueFrom:
+      secretKeyRef:
+        key: host
+        name: books-prd
+  
+
 nodeSelector: {}
 
 tolerations: []
