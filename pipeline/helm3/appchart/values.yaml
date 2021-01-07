@@ -2,6 +2,7 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+
 replicaCount: 1
 
 image:
@@ -163,3 +164,32 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+
+dataDog:
+  enabled: false
+  ## dataDogUniqueID is appended to service and env labels to identify same application in differents projects
+  dataDogUniqueID: "my-project-unique-id"
+  podEnvironment:
+    - name: DD_AGENT_HOST
+      valueFrom:
+        fieldRef:
+          fieldPath: status.hostIP
+    - name: DD_ENV
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.labels['tags.datadoghq.com/env']
+    - name: DD_SERVICE
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.labels['tags.datadoghq.com/service']
+    - name: DD_VERSION
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.labels['tags.datadoghq.com/version']
+    - name: DD_PROFILING_ENABLED
+      value: "true"
+    - name: DD_LOGS_INJECTION
+      value: "true"
+    - name: DD_TRACE_SAMPLE_RATE
+      value: "1"

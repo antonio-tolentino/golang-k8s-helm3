@@ -4,6 +4,9 @@ metadata:
   name: {{ include "appchart.fullname" . }}
   labels:
     {{- include "appchart.labels" . | nindent 4 }}
+    {{- if .Values.dataDog.enabled }}
+    {{- include "appchart.dataDogLabels" . | nindent 4 }}
+    {{- end }}
 spec:
 {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
@@ -19,6 +22,9 @@ spec:
     {{- end }}
       labels:
         {{- include "appchart.selectorLabels" . | nindent 8 }}
+        {{- if .Values.dataDog.enabled }}
+        {{- include "appchart.dataDogLabels" . | nindent 8 }}
+        {{- end }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -33,10 +39,13 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          {{- with .Values.podEnvironment }}
           env:
+          {{- if .Values.dataDog.enabled }}
+          {{- include "appchart.dataDogVar" . | nindent 12 }}
+          {{- end }} 
+          {{- with .Values.podEnvironment }}
             {{- toYaml . | nindent 12 }}
-          {{- end }}        
+          {{- end }} 
           ports:
             - name: http
               containerPort: {{ .Values.containerPort}}

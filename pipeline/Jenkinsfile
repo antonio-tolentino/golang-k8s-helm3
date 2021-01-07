@@ -8,9 +8,11 @@ pipeline {
         COMPANY_NAME = "Acme Corporation"
 
         //GCP Project
-        GCP_PROJECT = "arquitetura-207620"
-        // INFO: Use "PROD_GCP_PROJECT" variable if you have an exclusive production GCP project only.
+        //GCP_PROJECT = "arquitetura-207620"
+        // INFO: Use "DEV_GCP_PROJECT" and "PROD_GCP_PROJECT" variables if you have an exclusive production GCP project only.
+        DEV_GCP_PROJECT = "arquitetura-207620"
         PROD_GCP_PROJECT = "arquitetura-207620"
+        GCP_PROJECT = "${env.BRANCH_NAME == "master" ? env.PROD_GCP_PROJECT : env.DEV_GCP_PROJECT}"
 
         // GCP Secret Manager
         GCP_SECRET = "books-secrets"
@@ -18,7 +20,7 @@ pipeline {
         // Image registry
         //REGISTRY = "gcr.io/${GCP_PROJECT}"
         // INFO: Use this value for "REGISTRY" if you have an exclusive production GCP project only.
-        REGISTRY = "gcr.io/${env.BRANCH_NAME == "master" ? env.PROD_GCP_PROJECT : env.GCP_PROJECT}"
+        REGISTRY = "gcr.io/${env.BRANCH_NAME == "master" ? env.PROD_GCP_PROJECT : env.DEV_GCP_PROJECT}"
 
         // Namespaces 
         DEVELOP_NAMESPACE = "develop"
