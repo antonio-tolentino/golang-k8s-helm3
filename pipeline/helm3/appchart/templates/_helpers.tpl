@@ -52,6 +52,40 @@ app.kubernetes.io/name: {{ include "appchart.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
+
+{{/*
+DataDog environment.
+*/}}
+{{- define "appchart.dataDogEnv" -}}
+{{- printf  "%s-%s" .Values.dataDog.envName .Values.dataDog.dataDogUniqueID }}
+{{- end }}
+
+{{/*
+DataDog service.
+*/}}
+{{- define "appchart.dataDogService" -}}
+{{- printf  "%s-%s" (include "appchart.fullname" .) .Values.dataDog.dataDogUniqueID }}
+{{- end }}
+
+{{/*
+DataDog labels
+*/}}
+{{- define "appchart.dataDogLabels" -}}
+tags.datadoghq.com/env: {{ include "appchart.dataDogEnv" . }}
+tags.datadoghq.com/service: {{ include "appchart.dataDogService" . }}
+tags.datadoghq.com/version: {{ .Values.image.tag }}
+{{- end }}
+
+{{/*
+DataDog variables
+*/}}
+{{- define "appchart.dataDogVar" -}}
+{{- with .Values.dataDog.podEnvironment }}
+{{- toYaml . }}
+{{- end }}
+{{- end }}
+
+
 {{/*
 Create the name of the service account to use
 */}}
