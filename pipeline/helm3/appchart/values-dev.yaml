@@ -162,7 +162,7 @@ tolerations: []
 affinity: {}
 
 dataDog:
-  enabled: true
+  enabled: false
   envName: dev
   ## dataDogUniqueID is appended to service and env labels to identify same application in differents projects
   dataDogUniqueID: "my-project-unique-id"
