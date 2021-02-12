@@ -6,10 +6,10 @@
   {{- end }}
 {{- end }}
 {{- else if .Values.istio.enabled }}
-{{- $paths := .Values.istio.paths -}}
-{{- range $host := .Values.istio.hosts }}
+{{- $paths := .Values.istio.virtualservice.paths -}}
+{{- range $host := .Values.istio.dnsNames }}
   {{- range $paths }}
-  http{{ if $.Values.istio.tls.enabled }}s{{ end }}://{{ $host.host }}{{ . }}
+  http{{ if $.Values.istio.tls.enabled }}s{{ end }}://{{ $host }}{{ . }}
   {{- end }}
 {{- end }}
 {{- else if contains "NodePort" .Values.service.type }}

@@ -7,14 +7,20 @@ metadata:
     {{- include "appchart.labels" . | nindent 4 }} 
 spec:
   hosts:
-  {{- range .Values.istio.hosts }}
-  - {{ .host | quote }}
+  {{- range .Values.istio.dnsNames }}
+  - {{ . | quote }}
   {{- end }}
   gateways:
+  {{ if .Values.istio.virtualservice.gateways }}
+  {{- range .Values.istio.virtualservice.gateways }}
+  - {{ . | quote }}
+  {{- end }}
+  {{ else }}
   - {{ include "appchart.fullname" . }}
+  {{- end }}
   http:
   - match:
-    {{- range .Values.istio.paths }}
+    {{- range .Values.istio.virtualservice.paths }}
     - uri:
         prefix: {{ . | quote }}
     {{- end }} 

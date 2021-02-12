@@ -56,28 +56,32 @@ ingress:
   #    hosts:
   #      - books-hml.mydomain.com.br
 
-## istion service mesh
+## istio service mesh
 istio:
   enabled: false
-  redirect: true
-  hosts: 
-    - host: books-hml.mydomain.com.br
-  paths: 
-    - /api/v1
-    - /swagger
+  dnsNames: 
+    - books-hml.mydomain.com.br
+  tls: 
+    enabled: false
+    ## localCert = true secret with certificate and private key must be defined in credentialName
+    ## localCert = false certificate and private key is expected to be attached to Load Balancer
+    localCert: true
+    credentialName: mydomain-tls
   certManager:
     enabled: false
     issuer:
       name: letsencrypt-prod
       kind: ClusterIssuer
-    dnsNames: 
-      - name: books-hml.mydomain.com.br
-  tls: 
-    enabled: true
-    ## localCert = true secret with certificate and private key must be defined in credentialName
-    ## localCert = false certificate and private key is expected to be attached to Load Balancer
-    localCert: true
-    credentialName: mydomain-tls
+  gateway:
+    enabled: false
+    httpsRedirect: false
+    http: false
+  virtualservice:
+    gateways: []
+      #- istio-system/my-gateway-hml
+    paths: 
+      - /api/v1
+      - /swagger
     
 
 
