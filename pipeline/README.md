@@ -30,7 +30,7 @@ Example of external file agent declaration:
 agent {
     kubernetes {
         cloud 'local'
-        yamlFile 'pipeline/agents/pbdeploy.yml'
+        yamlFile 'pipeline/agents/gcpdeploy.yml'
     }
 }  
 ```
