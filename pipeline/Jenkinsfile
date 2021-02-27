@@ -8,10 +8,10 @@ pipeline {
         COMPANY_NAME = "Acme Corporation"
 
         //GCP Project
-        //GCP_PROJECT = "arquitetura-207620"
+        //GCP_PROJECT = "<GCP-PROJECT>"
         // INFO: Use "DEV_GCP_PROJECT" and "PROD_GCP_PROJECT" variables if you have an exclusive production GCP project only.
-        DEV_GCP_PROJECT = "arquitetura-207620"
-        PROD_GCP_PROJECT = "arquitetura-207620"
+        DEV_GCP_PROJECT = "<GCP-PROJECT>"
+        PROD_GCP_PROJECT = "<GCP-PROJECT>"
         GCP_PROJECT = "${env.BRANCH_NAME == "master" ? env.PROD_GCP_PROJECT : env.DEV_GCP_PROJECT}"
 
         // GCP Secret Manager
@@ -40,7 +40,7 @@ pipeline {
         // any variable 'slackHelper' declared in stage 'approval' and 'post actions'
         SLACK_CHANNEL = "#jenkins-test"
         SLACK_CREDENTIAL_ID = "Slack"
-        SLACK_DOMAIN = "platformbuilders"
+        SLACK_DOMAIN = "<SLACK-DOMAIN>"
 
     }
 
@@ -230,7 +230,7 @@ pipeline {
             //agent {
             //    kubernetes {
             //        cloud 'local'
-            //        yamlFile 'pipeline/agents/pbdeploy.yml'
+            //        yamlFile 'pipeline/agents/gcpdeploy.yml'
             //    }
             //}  
             // USE ONLY IF IMAGE REPOSITORY HAS TO BE FLEXIBLE
@@ -242,13 +242,13 @@ pipeline {
                          kind: Pod
                          metadata:
                            labels:
-                             app: pbdeploy
+                             app: gcpdeploy
                            namespace: jenkins
                          spec:
                            serviceAccount: jenkins
                            containers:
-                           - name: pbdeploy
-                             image: ${REGISTRY}/pbdeploy:v0.3.0
+                           - name: gcpdeploy
+                             image: ${REGISTRY}/gcpdeploy:v0.3.0
                              env:
                                - name: GOOGLE_APPLICATION_CREDENTIALS
                                  value: /secret/jenkins-gcp-credentials.json  
@@ -271,11 +271,11 @@ pipeline {
                 IMAGE_TAG = GIT_COMMIT.take(7)
             }                      
             steps{
-                container('pbdeploy'){
+                container('gcpdeploy'){
                     script{
                         // Generate ENV_NAME, HELM_NAME, REPOSITORY, NAMESPACE based on defined environment variables
-                        def pbdeployHelper = load("${WORKSPACE}/pipeline/helpers/pbdeployHelper.groovy")
-                        (ENV_NAME, HELM_NAME, NAMESPACE, REPOSITORY) = pbdeployHelper.genDeployInfo()
+                        def gcpdeployHelper = load("${WORKSPACE}/pipeline/helpers/gcpdeployHelper.groovy")
+                        (ENV_NAME, HELM_NAME, NAMESPACE, REPOSITORY) = gcpdeployHelper.genDeployInfo()
 
 
                         // Inject secrets from GCP Secret Manager

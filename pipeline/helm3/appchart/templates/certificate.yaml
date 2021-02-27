@@ -12,7 +12,7 @@ spec:
     name: {{ .Values.istio.certManager.issuer.name }}
     kind: {{ .Values.istio.certManager.issuer.kind }}
   dnsNames:
-  {{- range .Values.istio.certManager.dnsNames }}
-  - {{ .name | quote }}
+  {{- range .Values.istio.dnsNames }}
+  - {{ . | quote }}
   {{- end }}
 {{- end }}

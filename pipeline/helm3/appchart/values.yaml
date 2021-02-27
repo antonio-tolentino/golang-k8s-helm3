@@ -60,26 +60,28 @@ ingress:
 ## istio service mesh
 istio:
   enabled: false
-  redirect: true
-  hosts: 
-    - host: chart-example.local
-    - host: chart-example1.local
-  paths: []
-    #- /
+  dnsNames: 
+    - chart-example.local
+  tls: 
+    enabled: false
+    ## localCert = true secret with certificate and private key must be defined in credentialName
+    ## localCert = false certificate and private key is expected to be attached to Load Balancer
+    localCert: true
+    credentialName: mydomain-tls
   certManager:
     enabled: false
     issuer:
       name: letsencrypt-prod
       kind: ClusterIssuer
-    dnsNames: 
-      - name: chart-example.local
-      - name: chart-example1.local
-  tls: 
-    enabled: true
-    ## localCert = true secret with certificate and private key must be defined in credentialName
-    ## localCert = false certificate and private key is expected to be attached to Load Balancer
-    localCert: true
-    credentialName: chart-example-tls
+  gateway:
+    enabled: false
+    httpsRedirect: false
+    http: false
+  virtualservice:
+    gateways: []
+      #- istio-system/my-gateway-example
+    paths: 
+      - /
     
 
 resources: {}
